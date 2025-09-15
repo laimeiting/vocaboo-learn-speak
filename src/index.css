@@ -36,6 +36,7 @@ All colors MUST be HSL.
     --success: 145 65% 50%;
     --success-foreground: 0 0% 100%;
     --success-light: 145 65% 85%;
+    --success-dark: 145 65% 40%;
 
     /* Muted Grays */
     --muted: 210 20% 95%;
@@ -99,6 +100,7 @@ All colors MUST be HSL.
 
     --success: 145 60% 55%;
     --success-light: 145 60% 75%;
+    --success-dark: 145 60% 45%;
 
     --muted: 215 15% 20%;
     --muted-foreground: 215 15% 65%;
