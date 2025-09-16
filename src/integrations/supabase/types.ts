@@ -14,7 +14,170 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      episodes: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          episode_number: number
+          id: string
+          season_number: number
+          show_id: string
+          subtitle_url: string | null
+          title: string
+          updated_at: string
+          video_url: string | null
+          vocabulary_words: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          episode_number: number
+          id?: string
+          season_number?: number
+          show_id: string
+          subtitle_url?: string | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+          vocabulary_words?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          episode_number?: number
+          id?: string
+          season_number?: number
+          show_id?: string
+          subtitle_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+          vocabulary_words?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "episodes_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shows: {
+        Row: {
+          created_at: string
+          description: string | null
+          difficulty_level: string
+          duration_minutes: number | null
+          episodes: number | null
+          genre: string[] | null
+          id: string
+          image_url: string | null
+          language: string | null
+          rating: number | null
+          release_year: number | null
+          seasons: number | null
+          subtitle_languages: string[] | null
+          title: string
+          trailer_url: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          difficulty_level: string
+          duration_minutes?: number | null
+          episodes?: number | null
+          genre?: string[] | null
+          id?: string
+          image_url?: string | null
+          language?: string | null
+          rating?: number | null
+          release_year?: number | null
+          seasons?: number | null
+          subtitle_languages?: string[] | null
+          title: string
+          trailer_url?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          difficulty_level?: string
+          duration_minutes?: number | null
+          episodes?: number | null
+          genre?: string[] | null
+          id?: string
+          image_url?: string | null
+          language?: string | null
+          rating?: number | null
+          release_year?: number | null
+          seasons?: number | null
+          subtitle_languages?: string[] | null
+          title?: string
+          trailer_url?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_show_progress: {
+        Row: {
+          completed: boolean | null
+          created_at: string
+          episode_id: string | null
+          id: string
+          last_watched_at: string | null
+          progress_percentage: number | null
+          show_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string
+          episode_id?: string | null
+          id?: string
+          last_watched_at?: string | null
+          progress_percentage?: number | null
+          show_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string
+          episode_id?: string | null
+          id?: string
+          last_watched_at?: string | null
+          progress_percentage?: number | null
+          show_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_show_progress_episode_id_fkey"
+            columns: ["episode_id"]
+            isOneToOne: false
+            referencedRelation: "episodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_show_progress_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

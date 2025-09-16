@@ -79,9 +79,11 @@ const Index = () => {
               <p className="text-muted-foreground mb-4">
                 Watch with smart subtitles. Learn from real conversations and natural expressions.
               </p>
-              <Button variant="outline" className="w-full" disabled>
-                Coming Soon
-              </Button>
+              <Link to="/shows">
+                <Button variant="outline" className="w-full">
+                  Explore Shows
+                </Button>
+              </Link>
             </Card>
 
             {/* Music */}
