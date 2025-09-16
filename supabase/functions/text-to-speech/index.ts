@@ -71,7 +71,7 @@ serve(async (req) => {
       },
     );
   } catch (error) {
-    console.error('Error in text-to-speech function:', error);
+    console.error('Error in text-to-speech function:', error.message);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
@@ -84,7 +84,7 @@ serve(async (req) => {
 
 function getVoiceId(voice: string): string {
   // Map common voice names to ElevenLabs voice IDs
-  const voiceMap: Record<string, string> = {
+  const voiceMap: { [key: string]: string } = {
     'alloy': '9BWtsMINqrJLrRacOk9x', // Aria
     'echo': 'CwhRBWXzGAHq8TQ4Fs17', // Roger
     'fable': 'EXAVITQu4vr4xnSDxMaL', // Sarah
