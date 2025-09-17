@@ -14,6 +14,7 @@ interface VideoPlayerProps {
     type: 'tv_show' | 'movie';
     duration_minutes: number;
     trailer_url?: string;
+    video_url?: string;
   };
   isOpen: boolean;
   onClose: () => void;
@@ -166,8 +167,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ show, isOpen, onClose }) => {
     onClose();
   };
 
-  // Use demo video URL if no trailer_url is provided
-  const videoUrl = show.trailer_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+  // Use video_url from database, fallback to trailer_url, then demo video
+  const videoUrl = show.video_url || show.trailer_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>

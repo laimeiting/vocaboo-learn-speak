@@ -24,6 +24,7 @@ interface Show {
   image_url?: string;
   subtitle_languages: string[];
   trailer_url?: string;
+  video_url?: string;
 }
 
 const Shows = () => {
