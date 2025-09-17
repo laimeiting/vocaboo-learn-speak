@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import VideoPlayer from '@/components/VideoPlayer';
 
 interface Show {
   id: string;
@@ -22,6 +23,7 @@ interface Show {
   release_year: number;
   image_url?: string;
   subtitle_languages: string[];
+  trailer_url?: string;
 }
 
 const Shows = () => {
@@ -32,6 +34,8 @@ const Shows = () => {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [isPlayingAudio, setIsPlayingAudio] = useState<string | null>(null);
+  const [selectedShow, setSelectedShow] = useState<Show | null>(null);
+  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -147,6 +151,16 @@ const Shows = () => {
     }
   };
 
+  const handleWatch = (show: Show) => {
+    setSelectedShow(show);
+    setIsVideoPlayerOpen(true);
+  };
+
+  const handleCloseVideoPlayer = () => {
+    setIsVideoPlayerOpen(false);
+    setSelectedShow(null);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -253,7 +267,11 @@ const Shows = () => {
               </CardContent>
 
               <CardFooter className="flex gap-2 pt-3">
-                <Button className="flex-1" size="sm">
+                <Button 
+                  className="flex-1" 
+                  size="sm"
+                  onClick={() => handleWatch(show)}
+                >
                   <Play className="w-4 h-4 mr-2" />
                   Watch
                 </Button>
@@ -278,6 +296,15 @@ const Shows = () => {
           </div>
         )}
       </div>
+
+      {/* Video Player Modal */}
+      {selectedShow && (
+        <VideoPlayer
+          show={selectedShow}
+          isOpen={isVideoPlayerOpen}
+          onClose={handleCloseVideoPlayer}
+        />
+      )}
     </div>
   );
 };
