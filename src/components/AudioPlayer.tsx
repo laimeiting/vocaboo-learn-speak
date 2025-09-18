@@ -92,27 +92,49 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
       setCurrentTime(0);
     };
 
+    const handleError = (e: Event) => {
+      console.error('Audio error:', e);
+      setIsPlaying(false);
+      toast({
+        title: "Audio Error",
+        description: "Failed to load audio file.",
+        variant: "destructive",
+      });
+    };
+
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
     };
   }, []);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    if (isPlaying) {
-      audio.pause();
-    } else {
-      audio.play();
+    try {
+      if (isPlaying) {
+        audio.pause();
+        setIsPlaying(false);
+      } else {
+        await audio.play();
+        setIsPlaying(true);
+      }
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      toast({
+        title: "Audio Error",
+        description: "Failed to play audio. Please try again.",
+        variant: "destructive",
+      });
     }
-    setIsPlaying(!isPlaying);
   };
 
   const handleSeek = (value: number[]) => {
@@ -166,8 +188,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  // Use demo audio if no audio_url provided
-  const audioUrl = song.audio_url || 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav';
+  // Use demo audio if no audio_url provided - using a reliable demo audio
+  const audioUrl = song.audio_url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
 
   // Split lyrics into lines for display
   const lyricsDisplayLines = song.lyrics ? song.lyrics.split('\n').filter(line => line.trim()) : [];
