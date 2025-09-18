@@ -67,6 +67,44 @@ export type Database = {
           },
         ]
       }
+      lyrics_lines: {
+        Row: {
+          created_at: string
+          end_time_seconds: number
+          id: string
+          line_number: number
+          song_id: string
+          start_time_seconds: number
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          end_time_seconds: number
+          id?: string
+          line_number: number
+          song_id: string
+          start_time_seconds: number
+          text: string
+        }
+        Update: {
+          created_at?: string
+          end_time_seconds?: number
+          id?: string
+          line_number?: number
+          song_id?: string
+          start_time_seconds?: number
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyrics_lines_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "songs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shows: {
         Row: {
           created_at: string
@@ -127,6 +165,63 @@ export type Database = {
           type?: string
           updated_at?: string
           video_url?: string | null
+        }
+        Relationships: []
+      }
+      songs: {
+        Row: {
+          album: string | null
+          artist: string
+          audio_url: string | null
+          created_at: string
+          difficulty_level: string
+          duration_seconds: number | null
+          genre: string[] | null
+          id: string
+          image_url: string | null
+          language: string | null
+          lyrics: string | null
+          release_year: number | null
+          subtitle_languages: string[] | null
+          title: string
+          updated_at: string
+          vocabulary_words: string[] | null
+        }
+        Insert: {
+          album?: string | null
+          artist: string
+          audio_url?: string | null
+          created_at?: string
+          difficulty_level: string
+          duration_seconds?: number | null
+          genre?: string[] | null
+          id?: string
+          image_url?: string | null
+          language?: string | null
+          lyrics?: string | null
+          release_year?: number | null
+          subtitle_languages?: string[] | null
+          title: string
+          updated_at?: string
+          vocabulary_words?: string[] | null
+        }
+        Update: {
+          album?: string | null
+          artist?: string
+          audio_url?: string | null
+          created_at?: string
+          difficulty_level?: string
+          duration_seconds?: number | null
+          genre?: string[] | null
+          id?: string
+          image_url?: string | null
+          language?: string | null
+          lyrics?: string | null
+          release_year?: number | null
+          subtitle_languages?: string[] | null
+          title?: string
+          updated_at?: string
+          vocabulary_words?: string[] | null
         }
         Relationships: []
       }

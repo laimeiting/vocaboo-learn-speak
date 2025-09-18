@@ -95,9 +95,11 @@ const Index = () => {
               <p className="text-muted-foreground mb-4">
                 Learn through music with interactive lyrics and karaoke-style practice sessions.
               </p>
-              <Button variant="outline" className="w-full" disabled>
-                Coming Soon
-              </Button>
+              <Link to="/songs">
+                <Button variant="outline" className="w-full">
+                  Explore Songs
+                </Button>
+              </Link>
             </Card>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, Tv, Home } from 'lucide-react';
+import { BookOpen, Tv, Music, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Navigation = () => {
@@ -52,6 +52,17 @@ const Navigation = () => {
               <Link to="/shows" className="flex items-center gap-2">
                 <Tv className="w-4 h-4" />
                 <span className="hidden sm:inline">Shows</span>
+              </Link>
+            </Button>
+            
+            <Button
+              variant={isActive('/songs') ? 'default' : 'ghost'}
+              size="sm"
+              asChild
+            >
+              <Link to="/songs" className="flex items-center gap-2">
+                <Music className="w-4 h-4" />
+                <span className="hidden sm:inline">Songs</span>
               </Link>
             </Button>
           </div>
