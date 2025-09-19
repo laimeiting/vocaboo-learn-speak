@@ -2,123 +2,133 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Vocaboo Design System - Bright, Playful English Learning App
+/* Vocaboo Design System - Playful Ghost Theme for English Learning
 All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    /* Background System */
-    --background: 210 100% 98%;
-    --foreground: 215 25% 15%;
+    /* Ghost Theme Pastel Background System */
+    --background: 270 20% 98%;
+    --foreground: 260 15% 15%;
 
-    /* Card System */
+    /* Card System with soft shadows */
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card-foreground: 260 15% 15%;
 
     /* Popover System */
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: 260 15% 15%;
 
-    /* Learning Blue Primary */
-    --primary: 210 100% 56%;
+    /* Lavender Primary (Ghost Purple) */
+    --primary: 270 50% 70%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 210 100% 85%;
-    --primary-dark: 210 100% 45%;
+    --primary-light: 270 50% 85%;
+    --primary-dark: 270 50% 55%;
 
-    /* Energy Orange Secondary */
-    --secondary: 25 95% 60%;
-    --secondary-foreground: 0 0% 100%;
-    --secondary-light: 25 95% 85%;
-    --secondary-dark: 25 95% 50%;
+    /* Mint Secondary (Ghost Accent) */
+    --secondary: 150 40% 75%;
+    --secondary-foreground: 260 15% 15%;
+    --secondary-light: 150 40% 90%;
+    --secondary-dark: 150 40% 60%;
 
-    /* Success Green */
-    --success: 145 65% 50%;
-    --success-foreground: 0 0% 100%;
-    --success-light: 145 65% 85%;
-    --success-dark: 145 65% 40%;
+    /* Soft Pink (Success/Progress) */
+    --success: 340 50% 80%;
+    --success-foreground: 260 15% 15%;
+    --success-light: 340 50% 90%;
+    --success-dark: 340 50% 65%;
+
+    /* Light Yellow (Energy/Streaks) */
+    --accent: 50 60% 80%;
+    --accent-foreground: 260 15% 15%;
+    --accent-light: 50 60% 90%;
+    --accent-dark: 50 60% 65%;
 
     /* Muted Grays */
-    --muted: 210 20% 95%;
-    --muted-foreground: 215 15% 55%;
+    --muted: 270 10% 95%;
+    --muted-foreground: 260 10% 55%;
 
-    /* Accent Purple for highlights */
-    --accent: 270 70% 65%;
-    --accent-foreground: 0 0% 100%;
-
-    /* Danger/Error */
-    --destructive: 0 75% 60%;
-    --destructive-foreground: 0 0% 100%;
+    /* Soft Orange (Warnings) */
+    --destructive: 15 70% 75%;
+    --destructive-foreground: 260 15% 15%;
 
     /* Borders and Inputs */
-    --border: 210 30% 88%;
-    --input: 210 30% 92%;
-    --ring: 210 100% 56%;
+    --border: 270 15% 88%;
+    --input: 270 15% 92%;
+    --ring: 270 50% 70%;
 
-    /* Border Radius */
-    --radius: 0.75rem;
+    /* Border Radius - More rounded for playful feel */
+    --radius: 1rem;
     
-    /* Gradients */
+    /* Ghost Theme Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-dark)));
     --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-dark)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
     --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(var(--success-light)));
+    --gradient-ghost: linear-gradient(135deg, hsl(270 50% 85%), hsl(270 30% 95%));
     
-    /* Shadows */
-    --shadow-card: 0 4px 12px hsl(var(--primary) / 0.08);
-    --shadow-popup: 0 8px 32px hsl(var(--primary) / 0.12);
-    --shadow-button: 0 4px 8px hsl(var(--primary) / 0.16);
+    /* Soft Shadows for Ghost Theme */
+    --shadow-card: 0 4px 20px hsl(270 20% 70% / 0.1);
+    --shadow-popup: 0 8px 40px hsl(270 20% 70% / 0.15);
+    --shadow-button: 0 4px 12px hsl(270 50% 70% / 0.2);
+    --shadow-ghost: 0 8px 32px hsl(270 50% 80% / 0.3);
     
-    /* Animations */
+    /* Playful Animations */
     --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     
-    /* Typography */
-    --font-heading: 'Inter', -apple-system, sans-serif;
-    --font-body: 'Inter', -apple-system, sans-serif;
+    /* Typography - Ghost Theme Fonts */
+    --font-heading: 'Baloo 2', 'Inter', -apple-system, sans-serif;
+    --font-body: 'Nunito', 'Inter', -apple-system, sans-serif;
+    --font-button: 'Poppins', 'Inter', -apple-system, sans-serif;
   }
 
   .dark {
-    /* Dark mode maintains same colorful approach */
-    --background: 215 30% 8%;
-    --foreground: 210 20% 95%;
+    /* Dark mode with softer ghost theme */
+    --background: 260 15% 8%;
+    --foreground: 270 10% 95%;
 
-    --card: 215 25% 12%;
-    --card-foreground: 210 20% 95%;
+    --card: 260 10% 12%;
+    --card-foreground: 270 10% 95%;
 
-    --popover: 215 25% 12%;
-    --popover-foreground: 210 20% 95%;
+    --popover: 260 10% 12%;
+    --popover-foreground: 270 10% 95%;
 
-    /* Slightly muted but still vibrant in dark */
-    --primary: 210 90% 65%;
-    --primary-light: 210 90% 80%;
-    --primary-dark: 210 90% 55%;
+    /* Slightly muted but still magical in dark */
+    --primary: 270 45% 75%;
+    --primary-light: 270 45% 85%;
+    --primary-dark: 270 45% 65%;
 
-    --secondary: 25 85% 65%;
-    --secondary-light: 25 85% 80%;
-    --secondary-dark: 25 85% 55%;
+    --secondary: 150 35% 70%;
+    --secondary-light: 150 35% 80%;
+    --secondary-dark: 150 35% 60%;
 
-    --success: 145 60% 55%;
-    --success-light: 145 60% 75%;
-    --success-dark: 145 60% 45%;
+    --success: 340 45% 75%;
+    --success-light: 340 45% 85%;
+    --success-dark: 340 45% 65%;
 
-    --muted: 215 15% 20%;
-    --muted-foreground: 215 15% 65%;
+    --accent: 50 55% 75%;
+    --accent-light: 50 55% 85%;
+    --accent-dark: 50 55% 65%;
 
-    --accent: 270 60% 70%;
+    --muted: 260 8% 20%;
+    --muted-foreground: 260 8% 65%;
 
-    --border: 215 20% 25%;
-    --input: 215 20% 20%;
-    --ring: 210 90% 65%;
+    --border: 260 10% 25%;
+    --input: 260 10% 20%;
+    --ring: 270 45% 75%;
     
     /* Update gradients for dark mode */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-dark)));
     --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-dark)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-ghost: linear-gradient(135deg, hsl(260 20% 20%), hsl(260 15% 15%));
     
-    --shadow-card: 0 4px 12px hsl(0 0% 0% / 0.25);
-    --shadow-popup: 0 8px 32px hsl(0 0% 0% / 0.35);
-    --shadow-button: 0 4px 8px hsl(var(--primary) / 0.25);
+    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.25);
+    --shadow-popup: 0 8px 40px hsl(0 0% 0% / 0.35);
+    --shadow-button: 0 4px 12px hsl(270 45% 75% / 0.25);
+    --shadow-ghost: 0 8px 32px hsl(0 0% 0% / 0.4);
   }
 }
 
@@ -156,7 +166,7 @@ All colors MUST be HSL.
     -webkit-text-fill-color: transparent;
   }
   
-  /* Card animations */
+  /* Ghost-themed animations */
   .card-hover {
     @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
     box-shadow: var(--shadow-card);
@@ -164,5 +174,60 @@ All colors MUST be HSL.
   
   .card-hover:hover {
     box-shadow: var(--shadow-popup);
+  }
+
+  /* Ghost floating animation */
+  .ghost-float {
+    animation: ghost-float 3s ease-in-out infinite;
+  }
+
+  @keyframes ghost-float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+  }
+
+  /* Ghost pulse animation */
+  .ghost-pulse {
+    animation: ghost-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes ghost-pulse {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+
+  /* Bounce animation for buttons */
+  .bounce-hover {
+    transition: var(--transition-bounce);
+  }
+
+  .bounce-hover:hover {
+    transform: scale(1.05) translateY(-2px);
+  }
+
+  .bounce-hover:active {
+    transform: scale(0.98) translateY(0px);
+  }
+
+  /* Speech bubble animation */
+  .speech-bubble {
+    animation: speech-bubble 2s ease-in-out infinite;
+  }
+
+  @keyframes speech-bubble {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
+
+  /* Shimmer effect for progress */
+  .shimmer {
+    background: linear-gradient(90deg, transparent, hsl(var(--accent-light)), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 }
