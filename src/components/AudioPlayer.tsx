@@ -188,8 +188,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  // Use demo audio if no audio_url provided - using a reliable demo audio
-  const audioUrl = song.audio_url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+  // Use a simple audio beep as fallback if no audio_url provided
+  const audioUrl = song.audio_url || 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFA==';
 
   // Split lyrics into lines for display
   const lyricsDisplayLines = song.lyrics ? song.lyrics.split('\n').filter(line => line.trim()) : [];
