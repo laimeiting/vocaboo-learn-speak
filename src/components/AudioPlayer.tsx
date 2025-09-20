@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, Volume2, VolumeX, X, SkipBack, SkipForward, Subtitles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
@@ -199,6 +199,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
       <DialogContent className="max-w-4xl w-full h-[80vh] p-0 bg-background">
         <DialogHeader className="sr-only">
           <DialogTitle>Playing {song.title}</DialogTitle>
+          <DialogDescription>Audio player modal</DialogDescription>
         </DialogHeader>
         
         <div className="flex h-full">
@@ -218,7 +219,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
             </div>
 
             {/* Audio element */}
-            <audio ref={audioRef} src={audioUrl} />
+            <audio ref={audioRef} preload="metadata" playsInline>
+              <source src={audioUrl} type={audioUrl?.endsWith('.mp3') ? 'audio/mpeg' : audioUrl?.endsWith('.wav') ? 'audio/wav' : undefined} />
+              Your browser does not support the audio element.
+            </audio>
 
             {/* Progress bar */}
             <div className="mb-6">
