@@ -45,8 +45,9 @@ const GhostHomepage = () => {
   const progressPercentage = (userData.todayProgress / userData.todayGoal) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary-light/10 to-secondary-light/10">
-      {/* Floating ghost patterns in background */}
+    <div className="min-h-screen bg-gradient-to-br from-primary-light/20 via-secondary-light/15 to-accent-light/20"
+         style={{ background: 'var(--gradient-hero)' }}>
+      {/* Floating colorful ghost patterns in background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 opacity-5">
           <GhostAvatar size="xl" floating />
@@ -148,21 +149,26 @@ const GhostHomepage = () => {
 
             <TabsContent value="books" className="space-y-4">
               <div className="flex space-x-4 overflow-x-auto pb-4">
-                {contentData.books.map((book) => (
-                  <Card key={book.id} className="min-w-[140px] card-hover bg-card/80 backdrop-blur">
+                {contentData.books.map((book, index) => (
+                  <Card key={book.id} className="min-w-[140px] card-hover backdrop-blur border-0"
+                        style={{ 
+                          background: index % 3 === 0 ? 'var(--gradient-primary)' : 
+                                     index % 3 === 1 ? 'var(--gradient-secondary)' : 
+                                     'var(--gradient-success)'
+                        }}>
                     <CardContent className="p-3">
                       <div className="relative mb-2">
-                        <div className="w-full h-32 bg-gradient-ghost rounded-lg flex items-center justify-center">
-                          <BookOpen className="w-8 h-8 text-primary" />
+                        <div className="w-full h-32 bg-white/20 backdrop-blur rounded-lg flex items-center justify-center border border-white/30">
+                          <BookOpen className="w-8 h-8 text-white drop-shadow-lg" />
                         </div>
                         <div className="absolute -top-2 -right-2">
-                          <GhostAvatar size="sm" variant="sleepy" className="w-6 h-6" />
+                          <GhostAvatar size="sm" variant="sleepy" className="w-6 h-6 drop-shadow-lg" />
                         </div>
                       </div>
-                      <h3 className="font-heading font-semibold text-sm line-clamp-2 mb-1">{book.title}</h3>
-                      <p className="text-xs text-muted-foreground mb-2">{book.author}</p>
-                      <Badge variant="secondary" className="text-xs mb-2">{book.level}</Badge>
-                      <GhostButton size="sm" className="w-full" onClick={() => navigate('/reading')}>
+                      <h3 className="font-heading font-semibold text-sm line-clamp-2 mb-1 text-white drop-shadow">{book.title}</h3>
+                      <p className="text-xs text-white/80 mb-2 drop-shadow">{book.author}</p>
+                      <Badge variant="secondary" className="text-xs mb-2 bg-white/20 text-white border-white/30">{book.level}</Badge>
+                      <GhostButton size="sm" className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30" onClick={() => navigate('/reading')}>
                         Start
                       </GhostButton>
                     </CardContent>
@@ -173,21 +179,26 @@ const GhostHomepage = () => {
 
             <TabsContent value="shows" className="space-y-4">
               <div className="flex space-x-4 overflow-x-auto pb-4">
-                {contentData.shows.map((show) => (
-                  <Card key={show.id} className="min-w-[140px] card-hover bg-card/80 backdrop-blur">
+                {contentData.shows.map((show, index) => (
+                  <Card key={show.id} className="min-w-[140px] card-hover backdrop-blur border-0"
+                        style={{ 
+                          background: index % 3 === 0 ? 'var(--gradient-secondary)' : 
+                                     index % 3 === 1 ? 'var(--gradient-success)' : 
+                                     'var(--gradient-primary)'
+                        }}>
                     <CardContent className="p-3">
                       <div className="relative mb-2">
-                        <div className="w-full h-32 bg-gradient-ghost rounded-lg flex items-center justify-center">
-                          <Tv className="w-8 h-8 text-primary" />
+                        <div className="w-full h-32 bg-white/20 backdrop-blur rounded-lg flex items-center justify-center border border-white/30">
+                          <Tv className="w-8 h-8 text-white drop-shadow-lg" />
                         </div>
                         <div className="absolute -top-2 -right-2">
-                          <GhostAvatar size="sm" accessory="headphones" className="w-6 h-6" />
+                          <GhostAvatar size="sm" accessory="headphones" className="w-6 h-6 drop-shadow-lg" />
                         </div>
                       </div>
-                      <h3 className="font-heading font-semibold text-sm line-clamp-2 mb-1">{show.title}</h3>
-                      <p className="text-xs text-muted-foreground mb-2">{show.genre}</p>
-                      <Badge variant="secondary" className="text-xs mb-2">{show.level}</Badge>
-                      <GhostButton size="sm" className="w-full" onClick={() => navigate('/shows')}>
+                      <h3 className="font-heading font-semibold text-sm line-clamp-2 mb-1 text-white drop-shadow">{show.title}</h3>
+                      <p className="text-xs text-white/80 mb-2 drop-shadow">{show.genre}</p>
+                      <Badge variant="secondary" className="text-xs mb-2 bg-white/20 text-white border-white/30">{show.level}</Badge>
+                      <GhostButton size="sm" className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30" onClick={() => navigate('/shows')}>
                         Watch
                       </GhostButton>
                     </CardContent>
@@ -198,21 +209,26 @@ const GhostHomepage = () => {
 
             <TabsContent value="songs" className="space-y-4">
               <div className="flex space-x-4 overflow-x-auto pb-4">
-                {contentData.songs.map((song) => (
-                  <Card key={song.id} className="min-w-[140px] card-hover bg-card/80 backdrop-blur">
+                {contentData.songs.map((song, index) => (
+                  <Card key={song.id} className="min-w-[140px] card-hover backdrop-blur border-0"
+                        style={{ 
+                          background: index % 3 === 0 ? 'var(--gradient-success)' : 
+                                     index % 3 === 1 ? 'var(--gradient-primary)' : 
+                                     'var(--gradient-secondary)'
+                        }}>
                     <CardContent className="p-3">
                       <div className="relative mb-2">
-                        <div className="w-full h-32 bg-gradient-ghost rounded-lg flex items-center justify-center">
-                          <Music className="w-8 h-8 text-primary" />
+                        <div className="w-full h-32 bg-white/20 backdrop-blur rounded-lg flex items-center justify-center border border-white/30">
+                          <Music className="w-8 h-8 text-white drop-shadow-lg" />
                         </div>
                         <div className="absolute -top-2 -right-2">
-                          <GhostAvatar size="sm" variant="happy" className="w-6 h-6" />
+                          <GhostAvatar size="sm" variant="happy" className="w-6 h-6 drop-shadow-lg" />
                         </div>
                       </div>
-                      <h3 className="font-heading font-semibold text-sm line-clamp-2 mb-1">{song.title}</h3>
-                      <p className="text-xs text-muted-foreground mb-2">{song.artist}</p>
-                      <Badge variant="secondary" className="text-xs mb-2">{song.level}</Badge>
-                      <GhostButton size="sm" className="w-full" onClick={() => navigate('/songs')}>
+                      <h3 className="font-heading font-semibold text-sm line-clamp-2 mb-1 text-white drop-shadow">{song.title}</h3>
+                      <p className="text-xs text-white/80 mb-2 drop-shadow">{song.artist}</p>
+                      <Badge variant="secondary" className="text-xs mb-2 bg-white/20 text-white border-white/30">{song.level}</Badge>
+                      <GhostButton size="sm" className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30" onClick={() => navigate('/songs')}>
                         Play
                       </GhostButton>
                     </CardContent>
@@ -272,7 +288,8 @@ const GhostHomepage = () => {
         </section>
 
         {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur border-t border-border">
+        <nav className="fixed bottom-0 left-0 right-0 backdrop-blur border-t border-border"
+             style={{ background: 'var(--gradient-card)' }}>
           <div className="max-w-md mx-auto px-4 py-2">
             <div className="flex justify-around items-center">
               <Button variant="ghost" className="flex flex-col items-center space-y-1 p-2">

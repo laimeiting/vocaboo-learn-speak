@@ -60,12 +60,14 @@ All colors MUST be HSL.
     /* Border Radius - More rounded for playful feel */
     --radius: 1rem;
     
-    /* Ghost Theme Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-dark)));
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-dark)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
-    --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(var(--success-light)));
-    --gradient-ghost: linear-gradient(135deg, hsl(270 50% 85%), hsl(270 30% 95%));
+    /* Ghost Theme Gradients - More Vibrant */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--success)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)));
+    --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(var(--accent-light)));
+    --gradient-ghost: linear-gradient(135deg, hsl(270 60% 85%), hsl(150 50% 85%), hsl(340 60% 85%));
+    --gradient-rainbow: linear-gradient(45deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--success)), hsl(var(--accent)));
+    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--primary-light)/0.1) 100%);
     
     /* Soft Shadows for Ghost Theme */
     --shadow-card: 0 4px 20px hsl(270 20% 70% / 0.1);
@@ -119,11 +121,13 @@ All colors MUST be HSL.
     --input: 260 10% 20%;
     --ring: 270 45% 75%;
     
-    /* Update gradients for dark mode */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-dark)));
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-dark)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
-    --gradient-ghost: linear-gradient(135deg, hsl(260 20% 20%), hsl(260 15% 15%));
+    /* Update gradients for dark mode - More Vibrant */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--success)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)));
+    --gradient-ghost: linear-gradient(135deg, hsl(260 40% 30%), hsl(150 30% 25%), hsl(340 40% 30%));
+    --gradient-rainbow: linear-gradient(45deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--success)), hsl(var(--accent)));
+    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--primary-light)/0.1) 100%);
     
     --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.25);
     --shadow-popup: 0 8px 40px hsl(0 0% 0% / 0.35);
