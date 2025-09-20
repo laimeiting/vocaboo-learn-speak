@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Play, BookOpen, Tv, Music, Trophy, Archive, Settings, Bell, Sun, Moon } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 const GhostHomepage = () => {
   const navigate = useNavigate();
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
   
   // Mock user data
   const userData = {
@@ -80,15 +81,15 @@ const GhostHomepage = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setIsDarkMode(!isDarkMode)}
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="relative"
             >
               <GhostAvatar 
                 size="sm" 
-                accessory={isDarkMode ? "glasses" : "none"}
+                accessory={theme === 'dark' ? "glasses" : "none"}
                 className="w-6 h-6" 
               />
-              {isDarkMode ? <Moon className="w-4 h-4 ml-1" /> : <Sun className="w-4 h-4 ml-1" />}
+              {theme === 'dark' ? <Moon className="w-4 h-4 ml-1" /> : <Sun className="w-4 h-4 ml-1" />}
             </Button>
             
             <Button variant="ghost" size="sm" className="relative">
