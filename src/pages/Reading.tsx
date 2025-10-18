@@ -6,15 +6,22 @@ import WordDefinitionPopup from '@/components/WordDefinitionPopup';
 import ProgressBar from '@/components/ProgressBar';
 import VocabooMascot from '@/components/VocabooMascot';
 import SavedWordsList from '@/components/SavedWordsList';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import { ArrowLeft, BookOpen, Heart, Settings } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 const Reading = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [savedWords, setSavedWords] = useState<Set<string>>(new Set());
   const [showSavedWords, setShowSavedWords] = useState(false);
   const [mascotMessage, setMascotMessage] = useState<string>("");
+  const [showSettings, setShowSettings] = useState(false);
+  const [fontSize, setFontSize] = useState(18);
+  const [lineHeight, setLineHeight] = useState(1.8);
 
   // Story selection based on navigation state
   const location = useLocation() as any;
@@ -304,6 +311,7 @@ One day, a messenger arrived with troubling news from a distant village. The que
                 savedWords={savedWords}
                 onSaveWord={handleSaveWord}
                 className="prose prose-lg max-w-none"
+                style={{ fontSize: `${fontSize}px`, lineHeight }}
               />
             </Card>
           </div>
@@ -339,11 +347,21 @@ One day, a messenger arrived with troubling news from a distant village. The que
             <Card className="p-4 shadow-card border-primary/10">
               <h4 className="font-medium text-card-foreground mb-3">Quick Actions</h4>
               <div className="space-y-2">
-                <Button variant="outline" size="sm" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start"
+                  onClick={() => navigate('/')}
+                >
                   <BookOpen className="w-4 h-4 mr-2" />
                   Change Story
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start"
+                  onClick={() => setShowSettings(true)}
+                >
                   <Settings className="w-4 h-4 mr-2" />
                   Reading Settings
                 </Button>
@@ -352,6 +370,42 @@ One day, a messenger arrived with troubling news from a distant village. The que
           </div>
         </div>
       </div>
+
+      {/* Reading Settings Dialog */}
+      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reading Settings</DialogTitle>
+            <DialogDescription>
+              Customize your reading experience
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            <div className="space-y-2">
+              <Label>Font Size: {fontSize}px</Label>
+              <Slider
+                value={[fontSize]}
+                onValueChange={(value) => setFontSize(value[0])}
+                min={14}
+                max={24}
+                step={1}
+                className="w-full"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Line Height: {lineHeight.toFixed(1)}</Label>
+              <Slider
+                value={[lineHeight]}
+                onValueChange={(value) => setLineHeight(value[0])}
+                min={1.4}
+                max={2.2}
+                step={0.1}
+                className="w-full"
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -17,6 +17,7 @@ interface InteractiveTextProps {
   savedWords: Set<string>;
   onSaveWord: (word: string) => void;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 const InteractiveText = ({ 
@@ -24,7 +25,8 @@ const InteractiveText = ({
   words, 
   savedWords, 
   onSaveWord, 
-  className 
+  className,
+  style 
 }: InteractiveTextProps) => {
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [translations, setTranslations] = useState<Record<string, string>>({});
@@ -121,7 +123,7 @@ const InteractiveText = ({
 
   return (
     <div className={className}>
-      <div className="text-lg leading-relaxed select-none">
+      <div className="text-lg leading-relaxed select-none" style={style}>
         {renderText()}
       </div>
       
