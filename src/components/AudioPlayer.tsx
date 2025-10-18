@@ -124,11 +124,27 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
         audio.pause();
         setIsPlaying(false);
       } else {
-        await audio.play();
-        setIsPlaying(true);
+        // Check if audio can be played
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsPlaying(true);
+            })
+            .catch((error) => {
+              console.error('Error playing audio:', error);
+              setIsPlaying(false);
+              toast({
+                title: "Audio Error",
+                description: "Audio file not found or cannot be played.",
+                variant: "destructive",
+              });
+            });
+        }
       }
     } catch (error) {
       console.error('Error playing audio:', error);
+      setIsPlaying(false);
       toast({
         title: "Audio Error",
         description: "Failed to play audio. Please try again.",
