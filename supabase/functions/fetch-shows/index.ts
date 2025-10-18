@@ -7,13 +7,13 @@ const corsHeaders = {
 
 async function fetchYouTubeVideoForShow(title: string, type: string, youtubeApiKey: string): Promise<string> {
   try {
-    // Search for full episodes or trailers with English subtitles
+    // Search for official trailers or clips
     const searchQuery = type === 'movie' 
-      ? `${title} full movie english subtitles`
-      : `${title} full episode english subtitles`;
+      ? `${title} official trailer`
+      : `${title} official clip`;
     
     const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&type=video&videoCaption=closedCaption&maxResults=1&key=${youtubeApiKey}`
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&type=video&maxResults=1&key=${youtubeApiKey}`
     );
 
     if (!response.ok) {
