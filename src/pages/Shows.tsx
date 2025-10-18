@@ -49,18 +49,23 @@ const Shows = () => {
 
   const fetchShows = async () => {
     try {
-      const { data, error } = await supabase
-        .from('shows')
-        .select('*')
-        .order('rating', { ascending: false });
+      const { data, error } = await supabase.functions.invoke('fetch-shows', {
+        body: { 
+          filters: {
+            type: typeFilter,
+            difficulty: difficultyFilter,
+            search: searchTerm
+          }
+        }
+      });
 
       if (error) throw error;
-      setShows((data || []) as Show[]);
+      setShows((data?.shows || []) as Show[]);
     } catch (error) {
       console.error('Error fetching shows:', error);
       toast({
         title: "Error",
-        description: "Failed to load shows",
+        description: "Failed to load shows from API",
         variant: "destructive",
       });
     } finally {
