@@ -47,7 +47,7 @@ const GhostButton: React.FC<GhostButtonProps> = ({
       className={cn(
         'font-button font-semibold rounded-2xl border-0 transition-all duration-200',
         'bounce-hover active:scale-95',
-        'relative overflow-hidden',
+        'relative overflow-hidden group',
         variantClasses[variant],
         sizeClasses[size],
         className
@@ -66,7 +66,7 @@ const GhostButton: React.FC<GhostButtonProps> = ({
       </div>
       
       {/* Sparkle effect on hover */}
-      <div className="absolute inset-0 opacity-0 hover:opacity-20 transition-opacity duration-300">
+      <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-20 transition-opacity duration-300">
         <div className="absolute top-2 left-4 w-1 h-1 bg-white rounded-full animate-ping" />
         <div className="absolute bottom-3 right-6 w-1.5 h-1.5 bg-white rounded-full animate-ping delay-150" />
         <div className="absolute top-1/2 left-1/2 w-1 h-1 bg-white rounded-full animate-ping delay-300" />
