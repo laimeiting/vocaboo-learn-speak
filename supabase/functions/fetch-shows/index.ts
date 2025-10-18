@@ -94,30 +94,58 @@ serve(async (req) => {
       }
     }
 
-    // Fetch popular TV shows
+    // Fetch popular TV shows for English learning
     if (shouldFetchTVShows) {
-      const tvResponse = await fetch(
-        `https://api.themoviedb.org/3/tv/popular?api_key=${TMDB_API_KEY}&language=en-US&page=1`
-      );
-      
-      if (tvResponse.ok) {
-        const tvData = await tvResponse.json();
-        const tvShows = tvData.results.slice(0, 5).map((show: any) => ({
-          id: crypto.randomUUID(),
-          title: show.name,
-          description: show.overview,
-          type: 'tv_show',
-          genre: ['Drama', 'Comedy'], // TMDB returns genre IDs, simplifying for now
-          difficulty_level: getDifficultyLevel(show.vote_average),
-          duration_minutes: 45,
-          seasons: show.number_of_seasons || 1,
-          episodes: show.number_of_episodes || 10,
-          rating: show.vote_average,
-          release_year: new Date(show.first_air_date).getFullYear(),
-          subtitle_languages: ['en', 'es', 'fr'],
-        }));
-        allShows = [...allShows, ...tvShows];
-      }
+      // List of TV shows known to be great for learning English
+      const englishLearningShows = [
+        'Friends',
+        'Brooklyn Nine-Nine',
+        'Modern Family',
+        'Breaking Bad',
+        'The Office',
+        'How I Met Your Mother',
+        'Stranger Things',
+        'The Crown',
+        'Suits',
+        'The Big Bang Theory'
+      ];
+
+      const tvShowsPromises = englishLearningShows.map(async (showName) => {
+        try {
+          const searchResponse = await fetch(
+            `https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&language=en-US&query=${encodeURIComponent(showName)}&page=1`
+          );
+          
+          if (searchResponse.ok) {
+            const searchData = await searchResponse.json();
+            const show = searchData.results?.[0];
+            
+            if (show) {
+              return {
+                id: crypto.randomUUID(),
+                title: show.name,
+                description: show.overview,
+                type: 'tv_show',
+                genre: ['Drama', 'Comedy'],
+                difficulty_level: getDifficultyLevel(show.vote_average),
+                duration_minutes: 45,
+                seasons: show.number_of_seasons || 1,
+                episodes: show.number_of_episodes || 10,
+                rating: show.vote_average,
+                release_year: show.first_air_date ? new Date(show.first_air_date).getFullYear() : 2020,
+                subtitle_languages: ['en', 'es', 'fr'],
+              };
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching ${showName}:`, error);
+        }
+        return null;
+      });
+
+      const tvShowsResults = await Promise.all(tvShowsPromises);
+      const tvShows = tvShowsResults.filter(show => show !== null);
+      allShows = [...allShows, ...tvShows];
     }
 
     // Apply search filter if provided
