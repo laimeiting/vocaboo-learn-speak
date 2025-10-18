@@ -259,6 +259,7 @@ const GhostHomepage = () => {
               icon={Archive}
               className="w-full justify-start"
               ghostVariant="happy"
+              onClick={() => navigate('/saved-words')}
             >
               Saved Words & Phrases
             </GhostButton>
