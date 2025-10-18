@@ -16,10 +16,12 @@ const Reading = () => {
   const [showSavedWords, setShowSavedWords] = useState(false);
   const [mascotMessage, setMascotMessage] = useState<string>("");
 
-  // Sample interactive text content
-  const sampleText = `Once upon a time, in a magnificent castle perched atop a verdant hill, there lived a benevolent queen who cherished her subjects deeply. The castle's elaborate gardens flourished with vibrant flowers and ancient oak trees that provided shade for countless creatures. Every morning, the queen would contemplate the responsibilities of her realm while sipping tea from her favorite porcelain cup.
+  // Sample interactive text content for "The Queen's Tale"
+  const sampleText = `In a magnificent castle perched atop a verdant hill, there lived a benevolent queen who cherished her subjects deeply. The castle's elaborate gardens flourished with vibrant flowers and ancient oak trees that provided shade for countless creatures. Every morning, the queen would contemplate the responsibilities of her realm while sipping tea from her favorite porcelain cup.
 
-The queen possessed remarkable wisdom and always endeavored to make judicious decisions for her kingdom. Her advisors would frequently seek her counsel on matters both trivial and momentous. She believed that true leadership required not only intelligence but also compassion and humility.`;
+The queen possessed remarkable wisdom and always endeavored to make judicious decisions for her kingdom. Her advisors would frequently seek her counsel on matters both trivial and momentous. She believed that true leadership required not only intelligence but also compassion and humility.
+
+One day, a messenger arrived with troubling news from a distant village. The queen listened intently and quickly assembled her most trusted advisors to discuss the matter. Together, they crafted a solution that would benefit all her people.`;
 
   // Sample word definitions
   const words = {
