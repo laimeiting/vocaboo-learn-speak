@@ -5,34 +5,35 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-async function fetchVideoForShow(title: string, pexelsApiKey: string): Promise<string> {
+async function fetchYouTubeVideoForShow(title: string, type: string, youtubeApiKey: string): Promise<string> {
   try {
+    // Search for full episodes or trailers with English subtitles
+    const searchQuery = type === 'movie' 
+      ? `${title} full movie english subtitles`
+      : `${title} full episode english subtitles`;
+    
     const response = await fetch(
-      `https://api.pexels.com/videos/search?query=${encodeURIComponent(title)}&per_page=1`,
-      {
-        headers: {
-          Authorization: pexelsApiKey,
-        },
-      }
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&type=video&videoCaption=closedCaption&maxResults=1&key=${youtubeApiKey}`
     );
 
     if (!response.ok) {
-      console.error(`Pexels API error for "${title}":`, response.status);
-      return "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+      console.error(`YouTube API error for "${title}":`, response.status);
+      return "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; // Fallback video
     }
 
     const data = await response.json();
-    const video = data.videos?.[0];
+    const video = data.items?.[0];
     
-    if (video?.video_files?.[0]?.link) {
-      console.log(`Found video for "${title}":`, video.video_files[0].link);
-      return video.video_files[0].link;
+    if (video?.id?.videoId) {
+      const videoUrl = `https://www.youtube.com/watch?v=${video.id.videoId}`;
+      console.log(`Found YouTube video for "${title}":`, videoUrl);
+      return videoUrl;
     }
 
-    return "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+    return "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; // Fallback video
   } catch (error) {
-    console.error(`Error fetching video for "${title}":`, error);
-    return "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+    console.error(`Error fetching YouTube video for "${title}":`, error);
+    return "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; // Fallback video
   }
 }
 
@@ -51,14 +52,14 @@ serve(async (req) => {
     const { filters } = await req.json();
     
     const TMDB_API_KEY = Deno.env.get("TMDB_API_KEY");
-    const PEXELS_API_KEY = Deno.env.get("PEXELS_API_KEY");
+    const YOUTUBE_API_KEY = Deno.env.get("YOUTUBE_API_KEY");
     
     if (!TMDB_API_KEY) {
       throw new Error("TMDB_API_KEY is not configured");
     }
     
-    if (!PEXELS_API_KEY) {
-      throw new Error("PEXELS_API_KEY is not configured");
+    if (!YOUTUBE_API_KEY) {
+      throw new Error("YOUTUBE_API_KEY is not configured");
     }
 
     // Determine what to fetch based on filters
@@ -133,11 +134,11 @@ serve(async (req) => {
       allShows = allShows.filter(show => show.difficulty_level === filters.difficulty);
     }
 
-    // Fetch videos for each show
-    console.log(`Fetching videos for ${allShows.length} shows...`);
+    // Fetch YouTube videos for each show
+    console.log(`Fetching YouTube videos for ${allShows.length} shows...`);
     const showsWithVideos = await Promise.all(
       allShows.map(async (show: any) => {
-        const videoUrl = await fetchVideoForShow(show.title, PEXELS_API_KEY);
+        const videoUrl = await fetchYouTubeVideoForShow(show.title, show.type, YOUTUBE_API_KEY);
         return {
           ...show,
           video_url: videoUrl,

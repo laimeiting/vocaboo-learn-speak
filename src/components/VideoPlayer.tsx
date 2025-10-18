@@ -167,8 +167,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ show, isOpen, onClose }) => {
     onClose();
   };
 
-  // Use video_url from database, fallback to trailer_url, then demo video
+  // Convert YouTube URL to embed format
+  const getEmbedUrl = (url: string) => {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      const videoId = url.includes('youtube.com') 
+        ? url.split('v=')[1]?.split('&')[0]
+        : url.split('youtu.be/')[1]?.split('?')[0];
+      return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&cc_load_policy=1&cc_lang_pref=en`;
+    }
+    return url;
+  };
+
   const videoUrl = show.video_url || show.trailer_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+  const isYouTube = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be');
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -182,142 +193,154 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ show, isOpen, onClose }) => {
           onMouseMove={() => setShowControls(true)}
           onMouseLeave={() => isPlaying && setShowControls(false)}
         >
-          {/* Video Element */}
-          <video
-            ref={videoRef}
-            className="w-full h-full object-contain bg-black"
-            src={videoUrl}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onEnded={() => {
-              setIsPlaying(false);
-              saveProgress();
-              toast({
-                title: "Episode Complete!",
-                description: "Your progress has been saved.",
-              });
-            }}
-            onClick={togglePlay}
-          />
+          {/* Video Element or YouTube Embed */}
+          {isYouTube ? (
+            <iframe
+              className="w-full h-full"
+              src={getEmbedUrl(videoUrl)}
+              title={show.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <video
+              ref={videoRef}
+              className="w-full h-full object-contain bg-black"
+              src={videoUrl}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onEnded={() => {
+                setIsPlaying(false);
+                saveProgress();
+                toast({
+                  title: "Episode Complete!",
+                  description: "Your progress has been saved.",
+                });
+              }}
+              onClick={togglePlay}
+            />
+          )}
 
-          {/* Controls Overlay */}
-          <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
-            {/* Top bar */}
-            <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between">
-              <h3 className="text-white font-semibold text-lg">{show.title}</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClose}
-                className="text-white hover:bg-white/20"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Center play button */}
-            {!isPlaying && (
-              <div className="absolute inset-0 flex items-center justify-center">
+          {/* Controls Overlay - Only show for non-YouTube videos */}
+          {!isYouTube && (
+            <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
+              {/* Top bar */}
+              <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between">
+                <h3 className="text-white font-semibold text-lg">{show.title}</h3>
                 <Button
                   variant="ghost"
-                  size="lg"
-                  onClick={togglePlay}
-                  className="w-20 h-20 rounded-full bg-white/20 hover:bg-white/30 text-white"
+                  size="sm"
+                  onClick={handleClose}
+                  className="text-white hover:bg-white/20"
                 >
-                  <Play className="w-8 h-8 ml-1" />
+                  <X className="w-5 h-5" />
                 </Button>
               </div>
-            )}
 
-            {/* Bottom controls */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 space-y-4">
-              {/* Progress bar */}
-              <div className="space-y-2">
-                <Slider
-                  value={[progress]}
-                  onValueChange={handleSeek}
-                  max={100}
-                  step={0.1}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-white text-sm">
-                  <span>{formatTime(currentTime)}</span>
-                  <span>{formatTime(duration)}</span>
-                </div>
-              </div>
-
-              {/* Control buttons */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              {/* Center play button */}
+              {!isPlaying && (
+                <div className="absolute inset-0 flex items-center justify-center">
                   <Button
                     variant="ghost"
-                    size="sm"
-                    onClick={() => skip(-10)}
-                    className="text-white hover:bg-white/20"
-                  >
-                    <SkipBack className="w-5 h-5" />
-                  </Button>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                    size="lg"
                     onClick={togglePlay}
-                    className="text-white hover:bg-white/20"
+                    className="w-20 h-20 rounded-full bg-white/20 hover:bg-white/30 text-white"
                   >
-                    {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                  </Button>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => skip(10)}
-                    className="text-white hover:bg-white/20"
-                  >
-                    <SkipForward className="w-5 h-5" />
+                    <Play className="w-8 h-8 ml-1" />
                   </Button>
                 </div>
+              )}
 
-                <div className="flex items-center gap-2">
-                  {/* Volume controls */}
+              {/* Bottom controls */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 space-y-4">
+                {/* Progress bar */}
+                <div className="space-y-2">
+                  <Slider
+                    value={[progress]}
+                    onValueChange={handleSeek}
+                    max={100}
+                    step={0.1}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-white text-sm">
+                    <span>{formatTime(currentTime)}</span>
+                    <span>{formatTime(duration)}</span>
+                  </div>
+                </div>
+
+                {/* Control buttons */}
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={toggleMute}
+                      onClick={() => skip(-10)}
                       className="text-white hover:bg-white/20"
                     >
-                      {isMuted || volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                      <SkipBack className="w-5 h-5" />
                     </Button>
-                    <div className="w-20">
-                      <Slider
-                        value={[isMuted ? 0 : volume * 100]}
-                        onValueChange={handleVolumeChange}
-                        max={100}
-                        step={1}
-                      />
-                    </div>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={togglePlay}
+                      className="text-white hover:bg-white/20"
+                    >
+                      {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => skip(10)}
+                      className="text-white hover:bg-white/20"
+                    >
+                      <SkipForward className="w-5 h-5" />
+                    </Button>
                   </div>
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      if (document.fullscreenElement) {
-                        document.exitFullscreen();
-                        setIsFullscreen(false);
-                      } else {
-                        videoRef.current?.requestFullscreen();
-                        setIsFullscreen(true);
-                      }
-                    }}
-                    className="text-white hover:bg-white/20"
-                  >
-                    <Maximize className="w-5 h-5" />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {/* Volume controls */}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={toggleMute}
+                        className="text-white hover:bg-white/20"
+                      >
+                        {isMuted || volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                      </Button>
+                      <div className="w-20">
+                        <Slider
+                          value={[isMuted ? 0 : volume * 100]}
+                          onValueChange={handleVolumeChange}
+                          max={100}
+                          step={1}
+                        />
+                      </div>
+                    </div>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        if (document.fullscreenElement) {
+                          document.exitFullscreen();
+                          setIsFullscreen(false);
+                        } else {
+                          videoRef.current?.requestFullscreen();
+                          setIsFullscreen(true);
+                        }
+                      }}
+                      className="text-white hover:bg-white/20"
+                    >
+                      <Maximize className="w-5 h-5" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
