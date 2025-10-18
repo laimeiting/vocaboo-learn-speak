@@ -42,7 +42,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [lyricsLines, setLyricsLines] = useState<LyricsLine[]>([]);
   const [currentLineIndex, setCurrentLineIndex] = useState(-1);
-  const [objectSrc, setObjectSrc] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Resolve audio URL to absolute to avoid base path issues
@@ -228,7 +227,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
   const lyricsDisplayLines = song.lyrics ? song.lyrics.split('\n').filter(line => line.trim()) : [];
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
       <DialogContent className="max-w-4xl w-full h-[80vh] p-0 bg-background">
         <DialogHeader className="sr-only">
           <DialogTitle>Playing {song.title}</DialogTitle>
