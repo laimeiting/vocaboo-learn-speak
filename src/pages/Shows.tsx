@@ -5,29 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import VideoPlayer from '@/components/VideoPlayer';
 
-interface Episode {
-  episode_number: number;
-  name: string;
-  overview: string;
-  still_path?: string;
-  runtime: number;
-}
-
-interface Season {
-  season_number: number;
-  name: string;
-  episode_count: number;
-  episodes: Episode[];
-}
-
 interface Show {
   id: string;
-  tmdb_id?: number;
   title: string;
   description: string;
   type: 'tv_show' | 'movie';
@@ -42,7 +25,6 @@ interface Show {
   subtitle_languages: string[];
   trailer_url?: string;
   video_url?: string;
-  seasons_data?: Season[];
 }
 
 const Shows = () => {
@@ -55,8 +37,6 @@ const Shows = () => {
   const [isPlayingAudio, setIsPlayingAudio] = useState<string | null>(null);
   const [selectedShow, setSelectedShow] = useState<Show | null>(null);
   const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
-  const [expandedShow, setExpandedShow] = useState<string | null>(null);
-  const [selectedEpisode, setSelectedEpisode] = useState<{show: Show, season: number, episode: Episode} | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -126,6 +106,7 @@ const Shows = () => {
 
   const speakDescription = async (text: string, showId: string) => {
     if (isPlayingAudio === showId) {
+      // Stop current audio
       setIsPlayingAudio(null);
       return;
     }
@@ -141,6 +122,7 @@ const Shows = () => {
 
       const { audioContent } = response.data;
       
+      // Convert base64 to audio and play
       const audioBlob = new Blob([
         new Uint8Array(atob(audioContent).split('').map(c => c.charCodeAt(0)))
       ], { type: 'audio/mpeg' });
@@ -177,20 +159,12 @@ const Shows = () => {
 
   const handleWatch = (show: Show) => {
     setSelectedShow(show);
-    setSelectedEpisode(null);
-    setIsVideoPlayerOpen(true);
-  };
-
-  const handleWatchEpisode = (show: Show, season: number, episode: Episode) => {
-    setSelectedEpisode({show, season, episode});
-    setSelectedShow(show);
     setIsVideoPlayerOpen(true);
   };
 
   const handleCloseVideoPlayer = () => {
     setIsVideoPlayerOpen(false);
     setSelectedShow(null);
-    setSelectedEpisode(null);
   };
 
   if (loading) {
@@ -340,66 +314,6 @@ const Shows = () => {
                     </div>
                   )}
                 </div>
-
-                {/* Seasons and Episodes for TV Shows */}
-                {show.type === 'tv_show' && show.seasons_data && show.seasons_data.length > 0 && (
-                  <div className="mt-4">
-                    <Button 
-                      onClick={() => setExpandedShow(expandedShow === show.id ? null : show.id)}
-                      variant="outline"
-                      size="sm"
-                      className="w-full mb-2"
-                    >
-                      {expandedShow === show.id ? 'Hide' : 'View'} Seasons & Episodes
-                    </Button>
-                    
-                    {expandedShow === show.id && (
-                      <Accordion type="single" collapsible className="w-full">
-                        {show.seasons_data.map((season) => (
-                          <AccordionItem key={season.season_number} value={`season-${season.season_number}`}>
-                            <AccordionTrigger className="text-sm font-medium py-2">
-                              {season.name} ({season.episode_count} Episodes)
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <div className="space-y-2 max-h-64 overflow-y-auto">
-                                {season.episodes.map((episode) => (
-                                  <div 
-                                    key={episode.episode_number}
-                                    className="flex items-start gap-3 p-2 rounded-lg bg-muted/50 hover:bg-muted cursor-pointer transition-colors"
-                                    onClick={() => handleWatchEpisode(show, season.season_number, episode)}
-                                  >
-                                    {episode.still_path && (
-                                      <img 
-                                        src={episode.still_path} 
-                                        alt={episode.name}
-                                        className="w-20 h-12 object-cover rounded flex-shrink-0"
-                                      />
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-2">
-                                        <Play className="h-3 w-3 text-primary flex-shrink-0" />
-                                        <h4 className="font-medium text-xs">
-                                          E{episode.episode_number}: {episode.name}
-                                        </h4>
-                                      </div>
-                                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                        {episode.overview}
-                                      </p>
-                                      <div className="flex items-center gap-2 mt-1">
-                                        <Clock className="h-3 w-3" />
-                                        <span className="text-xs text-muted-foreground">{episode.runtime} min</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    )}
-                  </div>
-                )}
               </CardContent>
 
               <CardFooter className="flex gap-2 pt-3">
@@ -409,7 +323,7 @@ const Shows = () => {
                   onClick={() => handleWatch(show)}
                 >
                   <Play className="w-4 h-4 mr-2" />
-                  {show.type === 'tv_show' ? 'Watch Trailer' : 'Learn with Video'}
+                  Learn with Video
                 </Button>
                 <Button
                   variant="outline"
@@ -436,12 +350,7 @@ const Shows = () => {
       {/* Video Player Modal */}
       {selectedShow && (
         <VideoPlayer
-          show={{
-            ...selectedShow,
-            title: selectedEpisode 
-              ? `${selectedShow.title} - S${selectedEpisode.season}E${selectedEpisode.episode.episode_number}: ${selectedEpisode.episode.name}`
-              : selectedShow.title
-          }}
+          show={selectedShow}
           isOpen={isVideoPlayerOpen}
           onClose={handleCloseVideoPlayer}
         />
