@@ -42,7 +42,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [lyricsLines, setLyricsLines] = useState<LyricsLine[]>([]);
   const [currentLineIndex, setCurrentLineIndex] = useState(-1);
+  const [objectSrc, setObjectSrc] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Resolve audio URL to absolute to avoid base path issues
 
   // Fallback beep data (used if song audio fails to load)
   const fallbackBeep = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFA==';
