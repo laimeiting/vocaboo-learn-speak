@@ -167,13 +167,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ show, isOpen, onClose }) => {
     onClose();
   };
 
-  // Convert YouTube URL to embed format
+  // Convert YouTube URL to embed format with subtitles enabled
   const getEmbedUrl = (url: string) => {
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
       const videoId = url.includes('youtube.com') 
         ? url.split('v=')[1]?.split('&')[0]
         : url.split('youtu.be/')[1]?.split('?')[0];
-      return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&cc_load_policy=1&cc_lang_pref=en`;
+      // Enable captions by default with cc_load_policy=1 and set language preference to English
+      return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&cc_load_policy=1&cc_lang_pref=en&hl=en`;
     }
     return url;
   };
