@@ -153,29 +153,7 @@ const Songs = () => {
     }
   };
 
-  const handlePlay = async (song: Song) => {
-    // Fetch real audio URL if not available
-    if (!song.audio_url || song.audio_url.startsWith('/audio/')) {
-      try {
-        const { data, error } = await supabase.functions.invoke('fetch-song-audio', {
-          body: { title: song.title, artist: song.artist }
-        });
-
-        if (error) throw error;
-
-        if (data.audio_url) {
-          // Update song with real audio URL
-          song.audio_url = data.audio_url;
-        }
-      } catch (error) {
-        console.error('Error fetching song audio:', error);
-        toast({
-          title: "Info",
-          description: "Playing with fallback audio",
-        });
-      }
-    }
-
+  const handlePlay = (song: Song) => {
     setSelectedSong(song);
     setIsAudioPlayerOpen(true);
   };
