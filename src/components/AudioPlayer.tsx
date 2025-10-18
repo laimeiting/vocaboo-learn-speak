@@ -33,6 +33,7 @@ interface AudioPlayerProps {
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const playRetryRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -93,9 +94,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     const audio = audioRef.current;
     if (!audio || !isOpen) return;
 
-    console.log('Loading audio:', resolvedAudioUrl);
-    audio.src = resolvedAudioUrl;
-    audio.load();
+    if (audio.src !== resolvedAudioUrl) {
+      console.log('Setting audio src:', resolvedAudioUrl);
+      audio.src = resolvedAudioUrl;
+    }
+    // Avoid calling audio.load() here to prevent interrupting play()
   }, [resolvedAudioUrl, isOpen]);
 
   // Audio event handlers
@@ -157,6 +160,28 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
             })
             .catch((error) => {
               console.error('Error playing audio:', error);
+              // If play() was interrupted by a load/pause, retry once shortly after
+              if ((error as any)?.name === 'AbortError' && !playRetryRef.current) {
+                playRetryRef.current = true;
+                setTimeout(() => {
+                  audio.play()
+                    .then(() => {
+                      setIsPlaying(true);
+                      playRetryRef.current = false;
+                    })
+                    .catch((e2) => {
+                      console.error('Retry play failed:', e2);
+                      setIsPlaying(false);
+                      toast({
+                        title: "Playback Error",
+                        description: "Unable to play audio. The file may not exist.",
+                        variant: "destructive",
+                      });
+                      playRetryRef.current = false;
+                    });
+                }, 120);
+                return;
+              }
               setIsPlaying(false);
               toast({
                 title: "Playback Error",
