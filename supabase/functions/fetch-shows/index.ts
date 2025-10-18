@@ -121,8 +121,53 @@ serve(async (req) => {
             const show = searchData.results?.[0];
             
             if (show) {
+              // Fetch detailed show info including seasons
+              const detailsResponse = await fetch(
+                `https://api.themoviedb.org/3/tv/${show.id}?api_key=${TMDB_API_KEY}&language=en-US`
+              );
+              
+              let seasonsData: any[] = [];
+              
+              if (detailsResponse.ok) {
+                const details = await detailsResponse.json();
+                
+                // Fetch episodes for each season
+                const seasonPromises = (details.seasons || []).map(async (season: any) => {
+                  if (season.season_number === 0) return null; // Skip specials
+                  
+                  try {
+                    const seasonResponse = await fetch(
+                      `https://api.themoviedb.org/3/tv/${show.id}/season/${season.season_number}?api_key=${TMDB_API_KEY}&language=en-US`
+                    );
+                    
+                    if (seasonResponse.ok) {
+                      const seasonData = await seasonResponse.json();
+                      return {
+                        season_number: season.season_number,
+                        name: season.name,
+                        episode_count: season.episode_count,
+                        episodes: (seasonData.episodes || []).slice(0, 5).map((ep: any) => ({
+                          episode_number: ep.episode_number,
+                          name: ep.name,
+                          overview: ep.overview,
+                          still_path: ep.still_path ? `https://image.tmdb.org/t/p/w500${ep.still_path}` : null,
+                          runtime: ep.runtime || 45,
+                        })),
+                      };
+                    }
+                  } catch (error) {
+                    console.error(`Error fetching season ${season.season_number} for ${showName}:`, error);
+                  }
+                  return null;
+                });
+                
+                const seasons = await Promise.all(seasonPromises);
+                seasonsData = seasons.filter(s => s !== null);
+              }
+              
               return {
                 id: crypto.randomUUID(),
+                tmdb_id: show.id,
                 title: show.name,
                 description: show.overview,
                 type: 'tv_show',
@@ -134,6 +179,7 @@ serve(async (req) => {
                 rating: show.vote_average,
                 release_year: show.first_air_date ? new Date(show.first_air_date).getFullYear() : 2020,
                 subtitle_languages: ['en', 'es', 'fr'],
+                seasons_data: seasonsData,
               };
             }
           }
