@@ -168,7 +168,7 @@ const GhostHomepage = () => {
                       <h3 className="font-heading font-semibold text-sm line-clamp-2 mb-1 text-white drop-shadow">{book.title}</h3>
                       <p className="text-xs text-white/80 mb-2 drop-shadow">{book.author}</p>
                       <Badge variant="secondary" className="text-xs mb-2 bg-white/20 text-white border-white/30">{book.level}</Badge>
-                      <GhostButton size="sm" className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30" onClick={() => navigate('/reading')}>
+                      <GhostButton size="sm" className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30" onClick={() => navigate('/reading', { state: { book } })}>
                         Start
                       </GhostButton>
                     </CardContent>

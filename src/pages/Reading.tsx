@@ -7,7 +7,7 @@ import ProgressBar from '@/components/ProgressBar';
 import VocabooMascot from '@/components/VocabooMascot';
 import SavedWordsList from '@/components/SavedWordsList';
 import { ArrowLeft, BookOpen, Heart, Settings } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 const Reading = () => {
@@ -16,117 +16,196 @@ const Reading = () => {
   const [showSavedWords, setShowSavedWords] = useState(false);
   const [mascotMessage, setMascotMessage] = useState<string>("");
 
-  // Sample interactive text content for "The Queen's Tale"
-  const sampleText = `In a magnificent castle perched atop a verdant hill, there lived a benevolent queen who cherished her subjects deeply. The castle's elaborate gardens flourished with vibrant flowers and ancient oak trees that provided shade for countless creatures. Every morning, the queen would contemplate the responsibilities of her realm while sipping tea from her favorite porcelain cup.
+  // Story selection based on navigation state
+  const location = useLocation() as any;
+  const selectedBookTitle: string | undefined = location?.state?.book?.title;
+
+  type Word = { text: string; definition: string; partOfSpeech: string; pronunciation: string; examples: string[] };
+
+  const queenStory = {
+    title: "The Queen's Tale",
+    content: `In a magnificent castle perched atop a verdant hill, there lived a benevolent queen who cherished her subjects deeply. The castle's elaborate gardens flourished with vibrant flowers and ancient oak trees that provided shade for countless creatures. Every morning, the queen would contemplate the responsibilities of her realm while sipping tea from her favorite porcelain cup.
 
 The queen possessed remarkable wisdom and always endeavored to make judicious decisions for her kingdom. Her advisors would frequently seek her counsel on matters both trivial and momentous. She believed that true leadership required not only intelligence but also compassion and humility.
 
-One day, a messenger arrived with troubling news from a distant village. The queen listened intently and quickly assembled her most trusted advisors to discuss the matter. Together, they crafted a solution that would benefit all her people.`;
-
-  // Sample word definitions
-  const words = {
-    magnificent: {
-      text: "magnificent",
-      definition: "Extremely beautiful, elaborate, or impressive; splendid",
-      partOfSpeech: "adjective",
-      pronunciation: "/mæɡˈnɪfɪsənt/",
-      examples: [
-        "The magnificent cathedral took centuries to build.",
-        "She wore a magnificent gown to the royal ball."
-      ]
-    },
-    perched: {
-      text: "perched",
-      definition: "Sitting or resting in a high or precarious position",
-      partOfSpeech: "verb",
-      pronunciation: "/pɜːrtʃt/",
-      examples: [
-        "The bird perched on the branch.",
-        "The house was perched on the edge of the cliff."
-      ]
-    },
-    verdant: {
-      text: "verdant",
-      definition: "Green with vegetation; fresh and flourishing",
-      partOfSpeech: "adjective", 
-      pronunciation: "/ˈvɜːrdənt/",
-      examples: [
-        "The verdant meadow stretched for miles.",
-        "Spring brought verdant life to the barren landscape."
-      ]
-    },
-    benevolent: {
-      text: "benevolent",
-      definition: "Well-meaning and kindly; charitable",
-      partOfSpeech: "adjective",
-      pronunciation: "/bəˈnevələnt/",
-      examples: [
-        "The benevolent ruler was loved by all.",
-        "Her benevolent nature made her many friends."
-      ]
-    },
-    cherished: {
-      text: "cherished",
-      definition: "Protected and cared for lovingly; treasured",
-      partOfSpeech: "verb",
-      pronunciation: "/ˈtʃerɪʃt/",
-      examples: [
-        "She cherished the memories of her childhood.",
-        "The old photo was a cherished possession."
-      ]
-    },
-    elaborate: {
-      text: "elaborate",
-      definition: "Involving many carefully arranged parts; detailed and complicated",
-      partOfSpeech: "adjective",
-      pronunciation: "/ɪˈlæbərət/",
-      examples: [
-        "The wedding had elaborate decorations.",
-        "He created an elaborate plan for the project."
-      ]
-    },
-    flourished: {
-      text: "flourished",
-      definition: "Grew or developed in a healthy or vigorous way",
-      partOfSpeech: "verb",
-      pronunciation: "/ˈflʌrɪʃt/",
-      examples: [
-        "The business flourished under new management.",
-        "Art flourished during the Renaissance period."
-      ]
-    },
-    contemplate: {
-      text: "contemplate",
-      definition: "To think about thoughtfully; consider carefully",
-      partOfSpeech: "verb",
-      pronunciation: "/ˈkɑːntəmpleɪt/",
-      examples: [
-        "She contemplated her future career options.",
-        "He sat quietly to contemplate the beautiful sunset."
-      ]
-    },
-    endeavored: {
-      text: "endeavored", 
-      definition: "Tried hard to do or achieve something",
-      partOfSpeech: "verb",
-      pronunciation: "/ɪnˈdevərd/",
-      examples: [
-        "The team endeavored to finish the project on time.",
-        "She endeavored to learn a new language every year."
-      ]
-    },
-    judicious: {
-      text: "judicious",
-      definition: "Having, showing, or done with good judgment or sense",
-      partOfSpeech: "adjective", 
-      pronunciation: "/dʒuˈdɪʃəs/",
-      examples: [
-        "She made a judicious decision about her investments.",
-        "The judge's judicious ruling satisfied both parties."
-      ]
+One day, a messenger arrived with troubling news from a distant village. The queen listened intently and quickly assembled her most trusted advisors to discuss the matter. Together, they crafted a solution that would benefit all her people.`,
+    words: {
+      magnificent: {
+        text: "magnificent",
+        definition: "Extremely beautiful, elaborate, or impressive; splendid",
+        partOfSpeech: "adjective",
+        pronunciation: "/mæɡˈnɪfɪsənt/",
+        examples: [
+          "The magnificent cathedral took centuries to build.",
+          "She wore a magnificent gown to the royal ball."
+        ]
+      },
+      perched: {
+        text: "perched",
+        definition: "Sitting or resting in a high or precarious position",
+        partOfSpeech: "verb",
+        pronunciation: "/pɜːrtʃt/",
+        examples: [
+          "The bird perched on the branch.",
+          "The house was perched on the edge of the cliff."
+        ]
+      },
+      verdant: {
+        text: "verdant",
+        definition: "Green with vegetation; fresh and flourishing",
+        partOfSpeech: "adjective", 
+        pronunciation: "/ˈvɜːrdənt/",
+        examples: [
+          "The verdant meadow stretched for miles.",
+          "Spring brought verdant life to the barren landscape."
+        ]
+      },
+      benevolent: {
+        text: "benevolent",
+        definition: "Well-meaning and kindly; charitable",
+        partOfSpeech: "adjective",
+        pronunciation: "/bəˈnevələnt/",
+        examples: [
+          "The benevolent ruler was loved by all.",
+          "Her benevolent nature made her many friends."
+        ]
+      },
+      cherished: {
+        text: "cherished",
+        definition: "Protected and cared for lovingly; treasured",
+        partOfSpeech: "verb",
+        pronunciation: "/ˈtʃerɪʃt/",
+        examples: [
+          "She cherished the memories of her childhood.",
+          "The old photo was a cherished possession."
+        ]
+      },
+      elaborate: {
+        text: "elaborate",
+        definition: "Involving many carefully arranged parts; detailed and complicated",
+        partOfSpeech: "adjective",
+        pronunciation: "/ɪˈlæbərət/",
+        examples: [
+          "The wedding had elaborate decorations.",
+          "He created an elaborate plan for the project."
+        ]
+      },
+      flourished: {
+        text: "flourished",
+        definition: "Grew or developed in a healthy or vigorous way",
+        partOfSpeech: "verb",
+        pronunciation: "/ˈflʌrɪʃt/",
+        examples: [
+          "The business flourished under new management.",
+          "Art flourished during the Renaissance period."
+        ]
+      },
+      contemplate: {
+        text: "contemplate",
+        definition: "To think about thoughtfully; consider carefully",
+        partOfSpeech: "verb",
+        pronunciation: "/ˈkɑːntəmpleɪt/",
+        examples: [
+          "She contemplated her future career options.",
+          "He sat quietly to contemplate the beautiful sunset."
+        ]
+      },
+      endeavored: {
+        text: "endeavored", 
+        definition: "Tried hard to do or achieve something",
+        partOfSpeech: "verb",
+        pronunciation: "/ɪnˈdevərd/",
+        examples: [
+          "The team endeavored to finish the project on time.",
+          "She endeavored to learn a new language every year."
+        ]
+      },
+      judicious: {
+        text: "judicious",
+        definition: "Having, showing, or done with good judgment or sense",
+        partOfSpeech: "adjective", 
+        pronunciation: "/dʒuˈdɪʃəs/",
+        examples: [
+          "She made a judicious decision about her investments.",
+          "The judge's judicious ruling satisfied both parties."
+        ]
+      }
     }
   };
 
+  const littlePrinceStory = {
+    title: "The Little Prince",
+    content: `On the small asteroid B-612 lived a curious little prince who tended his volcanoes and watched sunsets. He met a pilot in the desert and learned about friendship from a wise fox who asked to be tamed. The little prince wondered about baobabs, roses, and what truly matters to the heart.`,
+    words: {
+      asteroid: {
+        text: "asteroid",
+        definition: "A small rocky body orbiting the sun, much smaller than a planet",
+        partOfSpeech: "noun",
+        pronunciation: "/ˈæstərɔɪd/",
+        examples: [
+          "The little prince lived on a tiny asteroid.",
+          "Scientists study asteroids to learn about the early solar system."
+        ]
+      },
+      tamed: {
+        text: "tamed",
+        definition: "Made less wild; trained to behave in a controlled way",
+        partOfSpeech: "verb",
+        pronunciation: "/teɪmd/",
+        examples: [
+          "The fox wished to be tamed by the little prince.",
+          "Horses can be tamed with patience."
+        ]
+      },
+      baobabs: {
+        text: "baobabs",
+        definition: "Large African trees; in the story, sprouts that could overrun the planet if not removed",
+        partOfSpeech: "noun",
+        pronunciation: "/ˈbeɪoʊˌbæbz/",
+        examples: [
+          "The little prince feared baobabs taking over his planet.",
+          "Baobabs have thick trunks and can live thousands of years."
+        ]
+      },
+      fox: {
+        text: "fox",
+        definition: "A small wild animal; the fox teaches the prince about friendship",
+        partOfSpeech: "noun",
+        pronunciation: "/fɒks/",
+        examples: [
+          "The fox asked to be tamed.",
+          "A fox is known for being clever."
+        ]
+      },
+      pilot: {
+        text: "pilot",
+        definition: "A person who flies an aircraft; the narrator of the story",
+        partOfSpeech: "noun",
+        pronunciation: "/ˈpaɪlət/",
+        examples: [
+          "The pilot met the little prince in the desert.",
+          "The pilot repaired his plane."
+        ]
+      },
+      friendship: {
+        text: "friendship",
+        definition: "A close and trusting relationship between people",
+        partOfSpeech: "noun",
+        pronunciation: "/ˈfrendʃɪp/",
+        examples: [
+          "The story teaches the meaning of friendship.",
+          "True friendship takes time and care."
+        ]
+      }
+    }
+  };
+
+  const stories: Record<string, { title: string; content: string; words: Record<string, Word> }> = {
+    [queenStory.title]: queenStory,
+    [littlePrinceStory.title]: littlePrinceStory,
+  };
+
+  const activeStory = (selectedBookTitle && stories[selectedBookTitle]) ? stories[selectedBookTitle] : queenStory;
   const handleSaveWord = (word: string) => {
     const newSavedWords = new Set(savedWords);
     if (newSavedWords.has(word)) {
@@ -153,10 +232,10 @@ One day, a messenger arrived with troubling news from a distant village. The que
 
   const savedWordsArray = Array.from(savedWords).map(word => ({
     word,
-    definition: words[word]?.definition || "",
-    partOfSpeech: words[word]?.partOfSpeech || "",
-    pronunciation: words[word]?.pronunciation || "",
-    examples: words[word]?.examples || [],
+    definition: activeStory.words[word]?.definition || "",
+    partOfSpeech: activeStory.words[word]?.partOfSpeech || "",
+    pronunciation: activeStory.words[word]?.pronunciation || "",
+    examples: activeStory.words[word]?.examples || [],
     savedAt: new Date()
   }));
 
@@ -175,7 +254,7 @@ One day, a messenger arrived with troubling news from a distant village. The que
               </Link>
               <div className="flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-primary" />
-                <h1 className="text-xl font-bold gradient-text">The Queen's Tale</h1>
+                <h1 className="text-xl font-bold gradient-text">{activeStory.title}</h1>
               </div>
             </div>
             
@@ -208,7 +287,7 @@ One day, a messenger arrived with troubling news from a distant village. The que
           </div>
           <div className="lg:w-80">
             <ProgressBar
-              progress={Math.round((savedWords.size / Object.keys(words).length) * 100)}
+              progress={Math.round((savedWords.size / Object.keys(activeStory.words).length) * 100)}
               streak={3}
               wordsLearned={savedWords.size}
             />
@@ -220,8 +299,8 @@ One day, a messenger arrived with troubling news from a distant village. The que
           <div className="lg:col-span-2">
             <Card className="p-6 lg:p-8 shadow-card border-primary/10">
               <InteractiveText
-                content={sampleText}
-                words={words}
+                content={activeStory.content}
+                words={activeStory.words}
                 savedWords={savedWords}
                 onSaveWord={handleSaveWord}
                 className="prose prose-lg max-w-none"
