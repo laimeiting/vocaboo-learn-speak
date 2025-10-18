@@ -185,6 +185,30 @@ const Shows = () => {
     setSelectedEpisode({show, season, episode});
     setSelectedShow(show);
     setIsVideoPlayerOpen(true);
+
+    // Fetch specific YouTube video for this episode
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-episode-video', {
+        body: {
+          showTitle: show.title,
+          seasonNumber: season,
+          episodeNumber: episode.episode_number,
+          episodeName: episode.name,
+        },
+      });
+
+      if (error) {
+        console.error('Error fetching episode video:', error);
+        return;
+      }
+
+      if (data?.videoUrl) {
+        // Update the show with the specific episode video
+        setSelectedShow({...show, video_url: data.videoUrl});
+      }
+    } catch (error) {
+      console.error('Error fetching episode video:', error);
+    }
   };
 
   const handleCloseVideoPlayer = () => {
