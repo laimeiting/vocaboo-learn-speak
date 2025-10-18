@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import WordDefinitionPopup from './WordDefinitionPopup';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Word {
   text: string;
@@ -26,11 +27,38 @@ const InteractiveText = ({
   className 
 }: InteractiveTextProps) => {
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
+  const [translations, setTranslations] = useState<Record<string, string>>({});
+  const [loadingTranslations, setLoadingTranslations] = useState<Set<string>>(new Set());
 
-  const handleWordClick = (word: string) => {
+  const handleWordClick = async (word: string) => {
     const cleanWord = word.toLowerCase().replace(/[^\w]/g, '');
     if (words[cleanWord]) {
       setSelectedWord(cleanWord);
+      
+      // Fetch translation if not already loaded
+      if (!translations[cleanWord] && !loadingTranslations.has(cleanWord)) {
+        setLoadingTranslations(prev => new Set([...prev, cleanWord]));
+        
+        try {
+          const { data, error } = await supabase.functions.invoke('translate-word', {
+            body: { word: cleanWord, targetLanguage: 'es' }
+          });
+          
+          if (error) throw error;
+          
+          if (data?.translation) {
+            setTranslations(prev => ({ ...prev, [cleanWord]: data.translation }));
+          }
+        } catch (error) {
+          console.error('Translation error:', error);
+        } finally {
+          setLoadingTranslations(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(cleanWord);
+            return newSet;
+          });
+        }
+      }
     }
   };
 
@@ -59,16 +87,26 @@ const InteractiveText = ({
 
             if (isInteractive) {
               return (
-                <span key={wordIndex}>
+                <span key={wordIndex} className="inline-flex flex-col items-start gap-0.5">
                   <span
                     onClick={() => handleWordClick(word)}
                     className={cn(
-                      "word-highlight",
+                      "word-highlight cursor-pointer",
                       isSaved && "saved"
                     )}
                   >
                     {wordWithoutPunctuation}
                   </span>
+                  {translations[cleanWord] && (
+                    <span className="text-xs text-primary/70 font-medium -mt-1">
+                      {translations[cleanWord]}
+                    </span>
+                  )}
+                  {loadingTranslations.has(cleanWord) && (
+                    <span className="text-xs text-muted-foreground animate-pulse -mt-1">
+                      ...
+                    </span>
+                  )}
                   {punctuation}
                 </span>
               );
