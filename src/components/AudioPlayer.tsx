@@ -63,6 +63,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
         if (data?.audio_url) {
           console.log('Fetched audio URL:', data.audio_url);
           setAudioUrl(data.audio_url);
+          if (data.matched === false) {
+            toast({
+              title: "Found a similar track",
+              description: `${data.title} — ${data.artist}`,
+            });
+          }
         } else {
           toast({
             title: "Audio Not Found",

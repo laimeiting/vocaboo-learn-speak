@@ -14,52 +14,77 @@ serve(async (req) => {
   try {
     const { title, artist } = await req.json()
 
-    if (!title) {
-      throw new Error('Title is required')
+    if (!title && !artist) {
+      throw new Error('Title or artist is required')
     }
 
-    console.log(`Searching for song: ${title} by ${artist}`)
+    const clientId = '56d30c95' // Demo client id; consider rotating if rate-limited
 
-    // Search for the song on Jamendo (free music API)
-    const searchQuery = artist ? `${title} ${artist}` : title
-    const jamendoResponse = await fetch(
-      `https://api.jamendo.com/v3.0/tracks/?client_id=56d30c95&format=json&limit=1&search=${encodeURIComponent(searchQuery)}&audioformat=mp32`
-    )
-
-    if (!jamendoResponse.ok) {
-      throw new Error('Failed to fetch from Jamendo API')
+    async function searchJamendo(query: string) {
+      const url = `https://api.jamendo.com/v3.0/tracks/?client_id=${clientId}&format=json&limit=1&audioformat=mp32&search=${encodeURIComponent(query)}&order=popularity_total_desc`
+      const res = await fetch(url)
+      if (!res.ok) return null
+      const json = await res.json()
+      const track = json?.results?.[0]
+      return track || null
     }
 
-    const jamendoData = await jamendoResponse.json()
-    
-    if (jamendoData.results && jamendoData.results.length > 0) {
-      const track = jamendoData.results[0]
-      console.log(`Found track: ${track.name} by ${track.artist_name}`)
-      
+    let matched = true
+    let track = null as any
+
+    if (title && artist) {
+      console.log(`Searching for song: ${title} by ${artist}`)
+      track = await searchJamendo(`${title} ${artist}`)
+    }
+
+    if (!track && title) {
+      matched = false
+      console.log(`Fallback search by title: ${title}`)
+      track = await searchJamendo(title)
+    }
+
+    if (!track && title) {
+      matched = false
+      const simplified = title.replace(/[^a-z0-9 ]/gi, ' ').replace(/\s+/g, ' ').trim()
+      if (simplified && simplified !== title) {
+        console.log(`Fallback search by simplified title: ${simplified}`)
+        track = await searchJamendo(simplified)
+      }
+    }
+
+    if (!track && artist) {
+      matched = false
+      console.log(`Fallback search by artist: ${artist}`)
+      track = await searchJamendo(artist)
+    }
+
+    if (!track) {
+      matched = false
+      console.log('No exact/partial match, using popular instrumental fallback')
+      track = await searchJamendo('instrumental background')
+    }
+
+    if (track) {
       return new Response(
         JSON.stringify({
           audio_url: track.audio,
           title: track.name,
           artist: track.artist_name,
           duration: track.duration,
-          image: track.image
+          image: track.image,
+          matched,
         }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // If not found on Jamendo, return null
-    console.log('No track found')
+    console.log('No track found after all attempts')
     return new Response(
       JSON.stringify({ audio_url: null }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching song audio:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
