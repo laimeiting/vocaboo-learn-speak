@@ -43,21 +43,47 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [lyricsLines, setLyricsLines] = useState<LyricsLine[]>([]);
   const [currentLineIndex, setCurrentLineIndex] = useState(-1);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const { toast } = useToast();
 
-  // Resolve audio URL to absolute to avoid base path issues
+  // Fetch audio from API
+  useEffect(() => {
+    const fetchAudio = async () => {
+      if (!isOpen) return;
+      
+      setIsLoadingAudio(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('fetch-song-audio', {
+          body: { title: song.title, artist: song.artist }
+        });
 
-  // Fallback beep data (used if song audio fails to load)
-  const fallbackBeep = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFA==';
+        if (error) throw error;
 
-  // Resolve audio URL to absolute to avoid base path issues
-  const resolvedAudioUrl = React.useMemo(() => {
-    if (!song.audio_url) return fallbackBeep;
-    if (song.audio_url.startsWith('http') || song.audio_url.startsWith('data:')) return song.audio_url;
-    // Convert relative path to absolute
-    const path = song.audio_url.startsWith('/') ? song.audio_url : `/${song.audio_url}`;
-    return `${window.location.origin}${path}`;
-  }, [song.audio_url, fallbackBeep]);
+        if (data?.audio_url) {
+          console.log('Fetched audio URL:', data.audio_url);
+          setAudioUrl(data.audio_url);
+        } else {
+          toast({
+            title: "Audio Not Found",
+            description: "Could not find audio for this song.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching audio:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load audio from API.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingAudio(false);
+      }
+    };
+
+    fetchAudio();
+  }, [song.id, isOpen, song.title, song.artist, toast]);
 
   // Fetch synchronized lyrics
   useEffect(() => {
@@ -89,17 +115,15 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     setCurrentLineIndex(currentLine);
   }, [currentTime, lyricsLines]);
 
-  // Load/reload audio when dialog opens or song changes
+  // Load audio when URL is available
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !isOpen) return;
+    if (!audio || !audioUrl) return;
 
-    if (audio.src !== resolvedAudioUrl) {
-      console.log('Setting audio src:', resolvedAudioUrl);
-      audio.src = resolvedAudioUrl;
-    }
-    // Avoid calling audio.load() here to prevent interrupting play()
-  }, [resolvedAudioUrl, isOpen]);
+    console.log('Setting audio source:', audioUrl);
+    audio.src = audioUrl;
+    audio.load();
+  }, [audioUrl]);
 
   // Audio event handlers
   useEffect(() => {
@@ -269,6 +293,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
                 {song.album && (
                   <p className="text-sm text-muted-foreground">{song.album}</p>
                 )}
+                {isLoadingAudio && (
+                  <p className="text-sm text-muted-foreground mt-2">Loading audio...</p>
+                )}
               </div>
               <Button variant="ghost" size="sm" onClick={handleClose}>
                 <X className="w-5 h-5" />
@@ -276,7 +303,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
             </div>
 
             {/* Audio element */}
-            <audio ref={audioRef} preload="metadata" playsInline>
+            <audio ref={audioRef} preload="metadata" playsInline crossOrigin="anonymous">
               Your browser does not support the audio element.
             </audio>
 
@@ -305,7 +332,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
                 variant="ghost"
                 size="lg"
                 onClick={togglePlay}
-                className="w-16 h-16 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+                disabled={!audioUrl || isLoadingAudio}
+                className="w-16 h-16 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
               </Button>
