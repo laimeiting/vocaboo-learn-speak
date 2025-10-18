@@ -207,9 +207,155 @@ One day, a messenger arrived with troubling news from a distant village. The que
     }
   };
 
+  const charlottesWebStory = {
+    title: "Charlotte's Web",
+    content: `Wilbur was a young pig who lived in a barn with many other animals. He was frightened when he learned that the farmer planned to slaughter him in the winter. Charlotte, a wise and clever spider, became his friend and promised to help him. She wove magnificent words into her web above Wilbur's pen, convincing everyone that he was a special pig worth saving.`,
+    words: {
+      frightened: {
+        text: "frightened",
+        definition: "Afraid or scared; feeling fear",
+        partOfSpeech: "adjective",
+        pronunciation: "/ˈfraɪtənd/",
+        examples: [
+          "Wilbur was frightened when he heard the news.",
+          "The frightened child ran to her mother."
+        ]
+      },
+      slaughter: {
+        text: "slaughter",
+        definition: "To kill animals for food",
+        partOfSpeech: "verb",
+        pronunciation: "/ˈslɔːtər/",
+        examples: [
+          "The farmer planned to slaughter the pig.",
+          "Animals are slaughtered for meat production."
+        ]
+      },
+      clever: {
+        text: "clever",
+        definition: "Quick to understand, learn, and devise solutions; intelligent",
+        partOfSpeech: "adjective",
+        pronunciation: "/ˈklevər/",
+        examples: [
+          "Charlotte was a clever spider with a good plan.",
+          "The clever student solved the puzzle quickly."
+        ]
+      },
+      wove: {
+        text: "wove",
+        definition: "Past tense of weave; to create fabric or patterns by interlacing threads",
+        partOfSpeech: "verb",
+        pronunciation: "/woʊv/",
+        examples: [
+          "Charlotte wove words into her web.",
+          "She wove a beautiful blanket from wool."
+        ]
+      },
+      magnificent: {
+        text: "magnificent",
+        definition: "Extremely beautiful, elaborate, or impressive; splendid",
+        partOfSpeech: "adjective",
+        pronunciation: "/mæɡˈnɪfɪsənt/",
+        examples: [
+          "Charlotte wove magnificent words.",
+          "The palace was a magnificent building."
+        ]
+      },
+      convincing: {
+        text: "convincing",
+        definition: "Causing someone to believe that something is true or certain",
+        partOfSpeech: "verb",
+        pronunciation: "/kənˈvɪnsɪŋ/",
+        examples: [
+          "Charlotte was convincing everyone of Wilbur's worth.",
+          "Her argument was very convincing."
+        ]
+      }
+    }
+  };
+
+  const giverStory = {
+    title: "The Giver",
+    content: `Jonas lived in a seemingly perfect community where everything was controlled and predictable. There was no pain, no war, and no suffering, but there was also no color, no music, and no real emotions. When Jonas turned twelve, he was assigned the extraordinary role of Receiver of Memory. The current Receiver, an elderly man called the Giver, began transmitting memories of the past to Jonas, revealing the truth about his world.`,
+    words: {
+      seemingly: {
+        text: "seemingly",
+        definition: "Appearing to be true but not necessarily so; apparently",
+        partOfSpeech: "adverb",
+        pronunciation: "/ˈsiːmɪŋli/",
+        examples: [
+          "The community was seemingly perfect.",
+          "It was a seemingly simple task that turned out to be difficult."
+        ]
+      },
+      predictable: {
+        text: "predictable",
+        definition: "Able to be predicted; behaving in a way that is expected",
+        partOfSpeech: "adjective",
+        pronunciation: "/prɪˈdɪktəbəl/",
+        examples: [
+          "Life in the community was controlled and predictable.",
+          "His reaction was entirely predictable."
+        ]
+      },
+      suffering: {
+        text: "suffering",
+        definition: "The state of undergoing pain, distress, or hardship",
+        partOfSpeech: "noun",
+        pronunciation: "/ˈsʌfərɪŋ/",
+        examples: [
+          "There was no suffering in Jonas's community.",
+          "The hospital helps reduce patient suffering."
+        ]
+      },
+      assigned: {
+        text: "assigned",
+        definition: "Allocated or designated for a particular purpose or person",
+        partOfSpeech: "verb",
+        pronunciation: "/əˈsaɪnd/",
+        examples: [
+          "Jonas was assigned the role of Receiver.",
+          "Each student was assigned a specific task."
+        ]
+      },
+      extraordinary: {
+        text: "extraordinary",
+        definition: "Very unusual or remarkable; beyond what is ordinary",
+        partOfSpeech: "adjective",
+        pronunciation: "/ɪkˈstrɔːrdəneri/",
+        examples: [
+          "The role of Receiver was extraordinary.",
+          "She has an extraordinary talent for music."
+        ]
+      },
+      transmitting: {
+        text: "transmitting",
+        definition: "Passing or sending something from one place or person to another",
+        partOfSpeech: "verb",
+        pronunciation: "/trænzˈmɪtɪŋ/",
+        examples: [
+          "The Giver was transmitting memories to Jonas.",
+          "The radio tower is transmitting the signal."
+        ]
+      },
+      revealing: {
+        text: "revealing",
+        definition: "Making known; showing or disclosing something previously hidden",
+        partOfSpeech: "verb",
+        pronunciation: "/rɪˈviːlɪŋ/",
+        examples: [
+          "The memories were revealing the truth.",
+          "The document is revealing important information."
+        ]
+      }
+    }
+  };
+
   const stories: Record<string, { title: string; content: string; words: Record<string, Word> }> = {
     [queenStory.title]: queenStory,
     [littlePrinceStory.title]: littlePrinceStory,
+    [charlottesWebStory.title]: charlottesWebStory,
+    [giverStory.title]: giverStory,
   };
 
   const activeStory = (selectedBookTitle && stories[selectedBookTitle]) ? stories[selectedBookTitle] : queenStory;
