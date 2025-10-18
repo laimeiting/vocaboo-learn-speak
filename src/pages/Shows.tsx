@@ -162,11 +162,6 @@ const Shows = () => {
     setIsVideoPlayerOpen(true);
   };
 
-  const handleCloseVideoPlayer = () => {
-    setIsVideoPlayerOpen(false);
-    setSelectedShow(null);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -352,7 +347,7 @@ const Shows = () => {
         <VideoPlayer
           show={selectedShow}
           isOpen={isVideoPlayerOpen}
-          onClose={handleCloseVideoPlayer}
+          onClose={() => setIsVideoPlayerOpen(false)}
         />
       )}
     </div>
