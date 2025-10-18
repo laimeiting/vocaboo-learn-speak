@@ -33,6 +33,7 @@ interface AudioPlayerProps {
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const fallbackTriedRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -94,6 +95,34 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
 
     const handleError = (e: Event) => {
       console.error('Audio error:', e);
+      const audio = audioRef.current;
+
+      // Try a built-in fallback sound once if primary source fails
+      if (audio && !fallbackTriedRef.current) {
+        fallbackTriedRef.current = true;
+        try {
+          audio.pause();
+          audio.src = fallbackBeep;
+          audio.load();
+          audio.play()
+            .then(() => {
+              setIsPlaying(true);
+            })
+            .catch((err) => {
+              console.error('Fallback audio play failed:', err);
+              setIsPlaying(false);
+              toast({
+                title: "Audio Error",
+                description: "Audio file not found or cannot be played.",
+                variant: "destructive",
+              });
+            });
+          return;
+        } catch (err) {
+          console.error('Error switching to fallback audio:', err);
+        }
+      }
+
       setIsPlaying(false);
       toast({
         title: "Audio Error",
@@ -198,14 +227,23 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     if (audio) {
       audio.pause();
     }
+    fallbackTriedRef.current = false;
     setIsPlaying(false);
     onClose();
   };
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  // Use a simple audio beep as fallback if no audio_url provided
-  const audioUrl = song.audio_url || 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFA==';
+  // Fallback beep data (used if song audio fails to load)
+  const fallbackBeep = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMcBjaL1fLNeSsFJHfH8N2QQAoUXrTp66hVFA==';
+
+  // Resolve audio URL to absolute to avoid base path issues
+  const resolvedAudioUrl = React.useMemo(() => {
+    if (!song.audio_url) return undefined;
+    if (song.audio_url.startsWith('http') || song.audio_url.startsWith('data:')) return song.audio_url;
+    const path = song.audio_url.startsWith('/') ? song.audio_url : `/${song.audio_url}`;
+    return `${window.location.origin}${path}`;
+  }, [song.audio_url]);
 
   // Split lyrics into lines for display
   const lyricsDisplayLines = song.lyrics ? song.lyrics.split('\n').filter(line => line.trim()) : [];
@@ -235,8 +273,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
             </div>
 
             {/* Audio element */}
-            <audio ref={audioRef} preload="metadata" playsInline>
-              <source src={audioUrl} type={audioUrl?.endsWith('.mp3') ? 'audio/mpeg' : audioUrl?.endsWith('.wav') ? 'audio/wav' : undefined} />
+            <audio ref={audioRef} preload="metadata" playsInline src={resolvedAudioUrl || fallbackBeep}>
               Your browser does not support the audio element.
             </audio>
 
