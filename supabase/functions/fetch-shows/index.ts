@@ -36,6 +36,12 @@ async function fetchVideoForShow(title: string, pexelsApiKey: string): Promise<s
   }
 }
 
+function getDifficultyLevel(voteAverage: number): string {
+  if (voteAverage >= 8) return "advanced";
+  if (voteAverage >= 6) return "intermediate";
+  return "beginner";
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -44,83 +50,93 @@ serve(async (req) => {
   try {
     const { filters } = await req.json();
     
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const TMDB_API_KEY = Deno.env.get("TMDB_API_KEY");
     const PEXELS_API_KEY = Deno.env.get("PEXELS_API_KEY");
     
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    if (!TMDB_API_KEY) {
+      throw new Error("TMDB_API_KEY is not configured");
     }
     
     if (!PEXELS_API_KEY) {
       throw new Error("PEXELS_API_KEY is not configured");
     }
 
-    // Create a prompt based on filters
-    let prompt = "Generate a JSON array of 10 TV shows and movies for English learning. ";
-    
-    if (filters?.type && filters.type !== 'all') {
-      prompt += `Only include ${filters.type === 'tv_show' ? 'TV shows' : 'movies'}. `;
+    // Determine what to fetch based on filters
+    const shouldFetchMovies = !filters?.type || filters.type === 'all' || filters.type === 'movie';
+    const shouldFetchTVShows = !filters?.type || filters.type === 'all' || filters.type === 'tv_show';
+
+    let allShows: any[] = [];
+
+    // Fetch popular movies
+    if (shouldFetchMovies) {
+      const moviesResponse = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=1`
+      );
+      
+      if (moviesResponse.ok) {
+        const moviesData = await moviesResponse.json();
+        const movies = moviesData.results.slice(0, 5).map((movie: any) => ({
+          id: crypto.randomUUID(),
+          title: movie.title,
+          description: movie.overview,
+          type: 'movie',
+          genre: ['Drama', 'Action'], // TMDB returns genre IDs, simplifying for now
+          difficulty_level: getDifficultyLevel(movie.vote_average),
+          duration_minutes: 120,
+          seasons: 1,
+          episodes: 1,
+          rating: movie.vote_average,
+          release_year: new Date(movie.release_date).getFullYear(),
+          subtitle_languages: ['en', 'es', 'fr'],
+        }));
+        allShows = [...allShows, ...movies];
+      }
     }
-    
-    if (filters?.difficulty && filters.difficulty !== 'all') {
-      prompt += `Only include ${filters.difficulty} level content. `;
+
+    // Fetch popular TV shows
+    if (shouldFetchTVShows) {
+      const tvResponse = await fetch(
+        `https://api.themoviedb.org/3/tv/popular?api_key=${TMDB_API_KEY}&language=en-US&page=1`
+      );
+      
+      if (tvResponse.ok) {
+        const tvData = await tvResponse.json();
+        const tvShows = tvData.results.slice(0, 5).map((show: any) => ({
+          id: crypto.randomUUID(),
+          title: show.name,
+          description: show.overview,
+          type: 'tv_show',
+          genre: ['Drama', 'Comedy'], // TMDB returns genre IDs, simplifying for now
+          difficulty_level: getDifficultyLevel(show.vote_average),
+          duration_minutes: 45,
+          seasons: show.number_of_seasons || 1,
+          episodes: show.number_of_episodes || 10,
+          rating: show.vote_average,
+          release_year: new Date(show.first_air_date).getFullYear(),
+          subtitle_languages: ['en', 'es', 'fr'],
+        }));
+        allShows = [...allShows, ...tvShows];
+      }
     }
-    
+
+    // Apply search filter if provided
     if (filters?.search) {
-      prompt += `Filter by: ${filters.search}. `;
+      const searchTerm = filters.search.toLowerCase();
+      allShows = allShows.filter(show => 
+        show.title.toLowerCase().includes(searchTerm) ||
+        show.description.toLowerCase().includes(searchTerm)
+      );
     }
 
-    prompt += `Each item must have: id (uuid format), title, description (max 200 chars), type (tv_show or movie), genre (array), difficulty_level (beginner/intermediate/advanced), duration_minutes, seasons, episodes, rating (0-10), release_year, subtitle_languages (array with en, es, fr). Return ONLY valid JSON array, no markdown.`;
-
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          {
-            role: "system",
-            content: "You are a data generator. Return only valid JSON, no markdown formatting."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-      }),
-    });
-
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded" }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Payment required" }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      throw new Error("AI request failed");
+    // Apply difficulty filter if provided
+    if (filters?.difficulty && filters.difficulty !== 'all') {
+      allShows = allShows.filter(show => show.difficulty_level === filters.difficulty);
     }
-
-    const data = await response.json();
-    let content = data.choices?.[0]?.message?.content?.trim() || "[]";
-    
-    // Remove markdown code blocks if present
-    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-    
-    const shows = JSON.parse(content);
 
     // Fetch videos for each show
-    console.log("Fetching videos for shows...");
+    console.log(`Fetching videos for ${allShows.length} shows...`);
     const showsWithVideos = await Promise.all(
-      shows.map(async (show: any) => {
+      allShows.map(async (show: any) => {
         const videoUrl = await fetchVideoForShow(show.title, PEXELS_API_KEY);
         return {
           ...show,
@@ -129,7 +145,7 @@ serve(async (req) => {
       })
     );
 
-    console.log(`Successfully fetched ${showsWithVideos.length} shows with videos`);
+    console.log(`Successfully fetched ${showsWithVideos.length} real shows with videos`);
 
     return new Response(
       JSON.stringify({ shows: showsWithVideos }),
