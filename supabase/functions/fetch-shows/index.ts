@@ -65,6 +65,7 @@ serve(async (req) => {
     // Determine what to fetch based on filters
     const shouldFetchMovies = !filters?.type || filters.type === 'all' || filters.type === 'movie';
     const shouldFetchTVShows = !filters?.type || filters.type === 'all' || filters.type === 'tv_show';
+    const shouldFetchVlogs = !filters?.type || filters.type === 'all' || filters.type === 'vlog';
 
     let allShows: any[] = [];
 
@@ -146,6 +147,86 @@ serve(async (req) => {
       const tvShowsResults = await Promise.all(tvShowsPromises);
       const tvShows = tvShowsResults.filter(show => show !== null);
       allShows = [...allShows, ...tvShows];
+    }
+
+    // Fetch lifestyle vlogs for English learning
+    if (shouldFetchVlogs) {
+      const lifestyleVlogs = [
+        {
+          title: "Learn English with Emma",
+          description: "Daily vlogs about life in London, food, shopping, and British culture. Perfect for intermediate English learners who want to improve their everyday conversation skills.",
+          video_url: "https://www.youtube.com/watch?v=7E-cwdnsiow",
+          difficulty_level: "intermediate",
+          genre: ["Lifestyle", "Educational"]
+        },
+        {
+          title: "Casey Neistat Daily Vlogs",
+          description: "Fast-paced lifestyle vlogs from NYC covering tech, filmmaking, and daily adventures. Great for advanced learners who want to understand fast, natural American English.",
+          video_url: "https://www.youtube.com/watch?v=WxfZkMm3wcg",
+          difficulty_level: "advanced",
+          genre: ["Lifestyle", "Technology"]
+        },
+        {
+          title: "American Family Life",
+          description: "Wholesome family vlogs showing everyday American life, home routines, and family activities. Ideal for beginners learning practical English phrases.",
+          video_url: "https://www.youtube.com/watch?v=8irSFvoyNHI",
+          difficulty_level: "beginner",
+          genre: ["Lifestyle", "Family"]
+        },
+        {
+          title: "Travel English with Mark",
+          description: "Travel vlogs exploring different countries while teaching useful English phrases and cultural insights. Perfect for intermediate learners interested in travel.",
+          video_url: "https://www.youtube.com/watch?v=1Tz3Hlah4yI",
+          difficulty_level: "intermediate",
+          genre: ["Lifestyle", "Travel"]
+        },
+        {
+          title: "Cooking in English",
+          description: "Simple cooking tutorials with clear English instructions. Great for beginners to learn food vocabulary and kitchen expressions in context.",
+          video_url: "https://www.youtube.com/watch?v=vVQBRp-8lug",
+          difficulty_level: "beginner",
+          genre: ["Lifestyle", "Food"]
+        },
+        {
+          title: "Student Life UK",
+          description: "University student vlogs showing campus life, study tips, and social activities. Excellent for intermediate learners interested in academic English.",
+          video_url: "https://www.youtube.com/watch?v=QRs7QOB4U8U",
+          difficulty_level: "intermediate",
+          genre: ["Lifestyle", "Education"]
+        },
+        {
+          title: "Morning Routine Vlogs",
+          description: "Peaceful morning routine vlogs with slow, clear narration. Perfect for beginners learning daily routine vocabulary and time expressions.",
+          video_url: "https://www.youtube.com/watch?v=3eC7TdnMPZE",
+          difficulty_level: "beginner",
+          genre: ["Lifestyle", "Wellness"]
+        },
+        {
+          title: "Tech & Lifestyle Reviews",
+          description: "In-depth tech reviews and lifestyle gadget unboxings. Great for advanced learners interested in technology vocabulary and detailed explanations.",
+          video_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          difficulty_level: "advanced",
+          genre: ["Lifestyle", "Technology"]
+        }
+      ];
+
+      const vlogs = lifestyleVlogs.map(vlog => ({
+        id: crypto.randomUUID(),
+        title: vlog.title,
+        description: vlog.description,
+        type: 'vlog',
+        genre: vlog.genre,
+        difficulty_level: vlog.difficulty_level,
+        duration_minutes: 15,
+        seasons: 1,
+        episodes: 1,
+        rating: 8.5,
+        release_year: 2024,
+        subtitle_languages: ['en'],
+        video_url: vlog.video_url,
+      }));
+
+      allShows = [...allShows, ...vlogs];
     }
 
     // Apply search filter if provided

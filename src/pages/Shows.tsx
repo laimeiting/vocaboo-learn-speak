@@ -13,7 +13,7 @@ interface Show {
   id: string;
   title: string;
   description: string;
-  type: 'tv_show' | 'movie';
+  type: 'tv_show' | 'movie' | 'vlog';
   genre: string[];
   difficulty_level: 'beginner' | 'intermediate' | 'advanced';
   duration_minutes: number;
@@ -179,10 +179,10 @@ const Shows = () => {
       <div className="bg-gradient-hero text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold mb-4 font-heading">
-            Learn English Through Movies & TV Shows
+            Learn English Through Movies, TV Shows & Lifestyle Vlogs
           </h1>
           <p className="text-xl opacity-90 max-w-2xl mx-auto mb-4">
-            Watch authentic content with English subtitles, learn real vocabulary, and improve your listening comprehension.
+            Watch authentic content with English subtitles, learn real vocabulary from native speakers, and improve your listening comprehension through daily vlogs.
           </p>
           <div className="flex flex-wrap justify-center gap-4 text-sm">
             <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
@@ -220,6 +220,7 @@ const Shows = () => {
               <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="tv_show">TV Shows</SelectItem>
               <SelectItem value="movie">Movies</SelectItem>
+              <SelectItem value="vlog">Lifestyle Vlogs</SelectItem>
             </SelectContent>
           </Select>
           <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>

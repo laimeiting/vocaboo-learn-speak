@@ -11,7 +11,7 @@ interface VideoPlayerProps {
     id: string;
     title: string;
     description: string;
-    type: 'tv_show' | 'movie';
+    type: 'tv_show' | 'movie' | 'vlog';
     duration_minutes: number;
     trailer_url?: string;
     video_url?: string;
