@@ -28,7 +28,10 @@ const GhostHomepage = () => {
     books: [
       { id: 1, title: "The Little Prince", author: "Antoine de Saint-Exupéry", level: "Intermediate", cover: "/api/placeholder/120/160" },
       { id: 2, title: "Charlotte's Web", author: "E.B. White", level: "Beginner", cover: "/api/placeholder/120/160" },
-      { id: 3, title: "The Giver", author: "Lois Lowry", level: "Advanced", cover: "/api/placeholder/120/160" }
+      { id: 3, title: "The Giver", author: "Lois Lowry", level: "Advanced", cover: "/api/placeholder/120/160" },
+      { id: 4, title: "Harry Potter and the Sorcerer's Stone", author: "J.K. Rowling", level: "Intermediate", cover: "/api/placeholder/120/160" },
+      { id: 5, title: "Wonder", author: "R.J. Palacio", level: "Beginner", cover: "/api/placeholder/120/160" },
+      { id: 6, title: "The Hobbit", author: "J.R.R. Tolkien", level: "Advanced", cover: "/api/placeholder/120/160" }
     ],
     shows: [
       { id: 1, title: "Friends", genre: "Comedy", level: "Intermediate", cover: "/api/placeholder/120/160" },

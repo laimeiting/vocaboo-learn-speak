@@ -351,14 +351,237 @@ One day, a messenger arrived with troubling news from a distant village. The que
     }
   };
 
+  const harryPotterStory = {
+    title: "Harry Potter and the Sorcerer's Stone",
+    content: `Harry Potter had lived with the Dursleys for nearly ten years, sleeping in a cupboard under the stairs. The Dursleys were perfectly normal, thank you very much, and they had always pretended that Harry's mother, their late sister, hadn't existed at all. On his eleventh birthday, Harry discovered he was a wizard and was whisked away to Hogwarts School of Witchcraft and Wizardry, where he would embark on magnificent adventures with his new friends Ron and Hermione.`,
+    words: {
+      cupboard: {
+        text: "cupboard",
+        definition: "A small storage space or cabinet, usually for food or dishes",
+        partOfSpeech: "noun",
+        pronunciation: "/ˈkʌbərd/",
+        examples: [
+          "Harry slept in the cupboard under the stairs.",
+          "She kept the plates in the kitchen cupboard."
+        ]
+      },
+      pretended: {
+        text: "pretended",
+        definition: "Acted as if something is true when it is not; made believe",
+        partOfSpeech: "verb",
+        pronunciation: "/prɪˈtendɪd/",
+        examples: [
+          "The Dursleys pretended Harry's mother never existed.",
+          "The children pretended to be pirates."
+        ]
+      },
+      wizard: {
+        text: "wizard",
+        definition: "A person who has magical powers, especially in legends and fairy tales",
+        partOfSpeech: "noun",
+        pronunciation: "/ˈwɪzərd/",
+        examples: [
+          "Harry discovered he was a wizard.",
+          "The wizard cast a powerful spell."
+        ]
+      },
+      whisked: {
+        text: "whisked",
+        definition: "Moved or taken somewhere suddenly and quickly",
+        partOfSpeech: "verb",
+        pronunciation: "/wɪskt/",
+        examples: [
+          "Harry was whisked away to Hogwarts.",
+          "She was whisked off her feet by the news."
+        ]
+      },
+      embark: {
+        text: "embark",
+        definition: "To begin a journey or start a new experience",
+        partOfSpeech: "verb",
+        pronunciation: "/ɪmˈbɑːrk/",
+        examples: [
+          "Harry would embark on magnificent adventures.",
+          "They embarked on a trip around the world."
+        ]
+      },
+      magnificent: {
+        text: "magnificent",
+        definition: "Extremely beautiful, elaborate, or impressive; splendid",
+        partOfSpeech: "adjective",
+        pronunciation: "/mæɡˈnɪfɪsənt/",
+        examples: [
+          "Harry's adventures were magnificent.",
+          "The castle was a magnificent sight."
+        ]
+      }
+    }
+  };
+
+  const wonderStory = {
+    title: "Wonder",
+    content: `August Pullman was born with a facial difference that prevented him from going to a mainstream school until now. He's about to start fifth grade at Beecher Prep, and if you've ever been the new kid, then you know how hard that can be. The thing is, Auggie's just an ordinary kid with an extraordinary face. But can he convince his new classmates that he's just like them, despite appearances?`,
+    words: {
+      facial: {
+        text: "facial",
+        definition: "Relating to the face",
+        partOfSpeech: "adjective",
+        pronunciation: "/ˈfeɪʃəl/",
+        examples: [
+          "August had a facial difference.",
+          "The doctor examined her facial features."
+        ]
+      },
+      prevented: {
+        text: "prevented",
+        definition: "Kept something from happening; stopped",
+        partOfSpeech: "verb",
+        pronunciation: "/prɪˈventɪd/",
+        examples: [
+          "His condition prevented him from attending school.",
+          "The rain prevented us from going outside."
+        ]
+      },
+      mainstream: {
+        text: "mainstream",
+        definition: "Normal, conventional, or ordinary; what most people do",
+        partOfSpeech: "adjective",
+        pronunciation: "/ˈmeɪnstriːm/",
+        examples: [
+          "Auggie is starting at a mainstream school.",
+          "The movie appealed to mainstream audiences."
+        ]
+      },
+      ordinary: {
+        text: "ordinary",
+        definition: "Normal; not special or different in any way",
+        partOfSpeech: "adjective",
+        pronunciation: "/ˈɔːrdəneri/",
+        examples: [
+          "Auggie is just an ordinary kid.",
+          "It was just an ordinary day."
+        ]
+      },
+      extraordinary: {
+        text: "extraordinary",
+        definition: "Very unusual or remarkable; beyond what is ordinary",
+        partOfSpeech: "adjective",
+        pronunciation: "/ɪkˈstrɔːrdəneri/",
+        examples: [
+          "Auggie had an extraordinary face.",
+          "She has extraordinary talent."
+        ]
+      },
+      convince: {
+        text: "convince",
+        definition: "To make someone believe that something is true",
+        partOfSpeech: "verb",
+        pronunciation: "/kənˈvɪns/",
+        examples: [
+          "Auggie wanted to convince his classmates he was just like them.",
+          "She tried to convince me to stay."
+        ]
+      },
+      despite: {
+        text: "despite",
+        definition: "Without being affected by; in spite of",
+        partOfSpeech: "preposition",
+        pronunciation: "/dɪˈspaɪt/",
+        examples: [
+          "He wanted acceptance despite appearances.",
+          "Despite the rain, we went for a walk."
+        ]
+      }
+    }
+  };
+
+  const hobbitStory = {
+    title: "The Hobbit",
+    content: `In a hole in the ground there lived a hobbit. Not a nasty, dirty, wet hole, filled with the ends of worms and an oozy smell, nor yet a dry, bare, sandy hole with nothing in it to sit down on or to eat: it was a hobbit-hole, and that means comfort. Bilbo Baggins was a respectable hobbit who enjoyed a quiet life until the wizard Gandalf and a company of dwarves arrived at his doorstep, seeking a burglar for their perilous quest to reclaim their treasure from the fearsome dragon Smaug.`,
+    words: {
+      nasty: {
+        text: "nasty",
+        definition: "Very unpleasant or disgusting",
+        partOfSpeech: "adjective",
+        pronunciation: "/ˈnæsti/",
+        examples: [
+          "Not a nasty, dirty, wet hole.",
+          "The medicine had a nasty taste."
+        ]
+      },
+      oozy: {
+        text: "oozy",
+        definition: "Slowly leaking or giving off a thick liquid",
+        partOfSpeech: "adjective",
+        pronunciation: "/ˈuːzi/",
+        examples: [
+          "The hole didn't have an oozy smell.",
+          "The mud was oozy and sticky."
+        ]
+      },
+      respectable: {
+        text: "respectable",
+        definition: "Regarded by society as proper, correct, and good; honorable",
+        partOfSpeech: "adjective",
+        pronunciation: "/rɪˈspektəbəl/",
+        examples: [
+          "Bilbo was a respectable hobbit.",
+          "She came from a respectable family."
+        ]
+      },
+      burglar: {
+        text: "burglar",
+        definition: "A person who breaks into buildings to steal things",
+        partOfSpeech: "noun",
+        pronunciation: "/ˈbɜːrɡlər/",
+        examples: [
+          "The dwarves sought a burglar for their quest.",
+          "The burglar was caught by the police."
+        ]
+      },
+      perilous: {
+        text: "perilous",
+        definition: "Full of danger or risk",
+        partOfSpeech: "adjective",
+        pronunciation: "/ˈperələs/",
+        examples: [
+          "They embarked on a perilous quest.",
+          "The journey through the mountains was perilous."
+        ]
+      },
+      reclaim: {
+        text: "reclaim",
+        definition: "To get back something that was lost or taken away",
+        partOfSpeech: "verb",
+        pronunciation: "/rɪˈkleɪm/",
+        examples: [
+          "The dwarves wanted to reclaim their treasure.",
+          "He tried to reclaim his reputation."
+        ]
+      },
+      fearsome: {
+        text: "fearsome",
+        definition: "Frightening, especially in appearance; causing fear",
+        partOfSpeech: "adjective",
+        pronunciation: "/ˈfɪrsəm/",
+        examples: [
+          "Smaug was a fearsome dragon.",
+          "The warrior had a fearsome reputation."
+        ]
+      }
+    }
+  };
+
   const stories: Record<string, { title: string; content: string; words: Record<string, Word> }> = {
-    [queenStory.title]: queenStory,
     [littlePrinceStory.title]: littlePrinceStory,
     [charlottesWebStory.title]: charlottesWebStory,
     [giverStory.title]: giverStory,
+    [harryPotterStory.title]: harryPotterStory,
+    [wonderStory.title]: wonderStory,
+    [hobbitStory.title]: hobbitStory,
   };
 
-  const activeStory = (selectedBookTitle && stories[selectedBookTitle]) ? stories[selectedBookTitle] : queenStory;
+  const activeStory = (selectedBookTitle && stories[selectedBookTitle]) ? stories[selectedBookTitle] : littlePrinceStory;
   const handleSaveWord = (word: string) => {
     const newSavedWords = new Set(savedWords);
     if (newSavedWords.has(word)) {
