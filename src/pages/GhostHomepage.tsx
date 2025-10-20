@@ -273,6 +273,7 @@ const GhostHomepage = () => {
               icon={Trophy}
               className="w-full justify-start"
               ghostVariant="surprised"
+              onClick={() => navigate('/daily-challenge')}
             >
               Daily Challenge
             </GhostButton>
