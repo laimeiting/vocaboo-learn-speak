@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import InteractiveText from '@/components/InteractiveText';
@@ -26,6 +26,13 @@ const Reading = () => {
   // Story selection based on navigation state
   const location = useLocation() as any;
   const selectedBookTitle: string | undefined = location?.state?.book?.title;
+
+  // Save last read book to localStorage
+  useEffect(() => {
+    if (selectedBookTitle) {
+      localStorage.setItem('lastReadBook', selectedBookTitle);
+    }
+  }, [selectedBookTitle]);
 
   type Word = { text: string; definition: string; partOfSpeech: string; pronunciation: string; examples: string[] };
 

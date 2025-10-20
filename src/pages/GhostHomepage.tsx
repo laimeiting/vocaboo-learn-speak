@@ -252,6 +252,13 @@ const GhostHomepage = () => {
               icon={Play}
               className="w-full justify-start"
               ghostVariant="winking"
+              onClick={() => {
+                const lastBook = localStorage.getItem('lastReadBook');
+                const bookToLoad = lastBook 
+                  ? contentData.books.find(b => b.title === lastBook) 
+                  : contentData.books[0];
+                navigate('/reading', { state: { book: bookToLoad } });
+              }}
             >
               Continue Last Session
             </GhostButton>
