@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import VideoPlayer from '@/components/VideoPlayer';
+import PronunciationPractice from '@/components/PronunciationPractice';
 
 interface Show {
   id: string;
@@ -37,6 +38,7 @@ const Shows = () => {
   const [isPlayingAudio, setIsPlayingAudio] = useState<string | null>(null);
   const [selectedShow, setSelectedShow] = useState<Show | null>(null);
   const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
+  const [isPronunciationOpen, setIsPronunciationOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -104,57 +106,9 @@ const Shows = () => {
     }
   };
 
-  const speakDescription = async (text: string, showId: string) => {
-    if (isPlayingAudio === showId) {
-      // Stop current audio
-      setIsPlayingAudio(null);
-      return;
-    }
-
-    setIsPlayingAudio(showId);
-    
-    try {
-      const response = await supabase.functions.invoke('text-to-speech', {
-        body: { text, voice: 'alloy' }
-      });
-
-      if (response.error) throw response.error;
-
-      const { audioContent } = response.data;
-      
-      // Convert base64 to audio and play
-      const audioBlob = new Blob([
-        new Uint8Array(atob(audioContent).split('').map(c => c.charCodeAt(0)))
-      ], { type: 'audio/mpeg' });
-      
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      
-      audio.onended = () => {
-        setIsPlayingAudio(null);
-        URL.revokeObjectURL(audioUrl);
-      };
-      
-      audio.onerror = () => {
-        setIsPlayingAudio(null);
-        URL.revokeObjectURL(audioUrl);
-        toast({
-          title: "Audio Error",
-          description: "Failed to play audio",
-          variant: "destructive",
-        });
-      };
-      
-      await audio.play();
-    } catch (error) {
-      console.error('Error playing audio:', error);
-      setIsPlayingAudio(null);
-      toast({
-        title: "Error",
-        description: "Failed to generate audio",
-        variant: "destructive",
-      });
-    }
+  const handlePronunciationPractice = (show: Show) => {
+    setSelectedShow(show);
+    setIsPronunciationOpen(true);
   };
 
   const handleWatch = (show: Show) => {
@@ -324,10 +278,10 @@ const Shows = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => speakDescription(show.description, show.id)}
-                  disabled={isPlayingAudio === show.id}
+                  onClick={() => handlePronunciationPractice(show)}
+                  title="Practice pronunciation"
                 >
-                  <Mic className={`w-4 h-4 ${isPlayingAudio === show.id ? 'animate-pulse' : ''}`} />
+                  <Mic className="w-4 h-4" />
                 </Button>
               </CardFooter>
             </Card>
@@ -345,11 +299,19 @@ const Shows = () => {
 
       {/* Video Player Modal */}
       {selectedShow && (
-        <VideoPlayer
-          show={selectedShow}
-          isOpen={isVideoPlayerOpen}
-          onClose={() => setIsVideoPlayerOpen(false)}
-        />
+        <>
+          <VideoPlayer
+            show={selectedShow}
+            isOpen={isVideoPlayerOpen}
+            onClose={() => setIsVideoPlayerOpen(false)}
+          />
+          <PronunciationPractice
+            isOpen={isPronunciationOpen}
+            onClose={() => setIsPronunciationOpen(false)}
+            text={selectedShow.description}
+            title={selectedShow.title}
+          />
+        </>
       )}
     </div>
   );
