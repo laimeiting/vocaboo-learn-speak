@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Play, BookOpen, Tv, Music, Trophy, Archive, Settings, Bell, Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
@@ -10,10 +10,31 @@ import ProgressBalloon from '@/components/ProgressBalloon';
 import SpeechBubble from '@/components/SpeechBubble';
 import GhostButton from '@/components/GhostButton';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 const GhostHomepage = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      if (!session) {
+        navigate('/auth');
+      }
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (!session) {
+        navigate('/auth');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
   
   // Mock user data
   const userData = {

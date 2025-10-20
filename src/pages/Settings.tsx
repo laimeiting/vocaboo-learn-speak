@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Volume2, VolumeX, Globe, Bell, BellOff, User, Mail } from 'lucide-react';
+import { ArrowLeft, Volume2, VolumeX, Globe, Bell, BellOff, User, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input';
 import GhostAvatar from '@/components/GhostAvatar';
 import SpeechBubble from '@/components/SpeechBubble';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { toast as sonnerToast } from 'sonner';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -27,6 +29,20 @@ const Settings = () => {
       title: "Settings Saved! 👻",
       description: "Your preferences have been updated successfully.",
     });
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        sonnerToast.error('Failed to logout');
+        return;
+      }
+      sonnerToast.success('Logged out successfully');
+      navigate('/auth');
+    } catch (error) {
+      sonnerToast.error('An error occurred during logout');
+    }
   };
 
   return (
@@ -193,6 +209,17 @@ const Settings = () => {
           size="lg"
         >
           Save Settings
+        </Button>
+
+        {/* Logout Button */}
+        <Button 
+          onClick={handleLogout}
+          variant="destructive"
+          className="w-full mt-4"
+          size="lg"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Logout
         </Button>
 
         {/* Account Info */}
