@@ -304,32 +304,32 @@ const GhostHomepage = () => {
              style={{ background: 'var(--gradient-card)' }}>
           <div className="max-w-md mx-auto px-4 py-2">
             <div className="flex justify-around items-center">
-              <Button variant="ghost" className="flex flex-col items-center space-y-1 p-2">
+              <Button variant="ghost" className="flex flex-col items-center space-y-1 p-2" onClick={() => navigate('/')}>
                 <div className="relative">
                   <GhostAvatar size="sm" accessory="crown" className="w-6 h-6 animate-wiggle" />
                 </div>
                 <span className="text-xs font-button">Home</span>
               </Button>
               
-              <Button variant="ghost" className="flex flex-col items-center space-y-1 p-2" onClick={() => navigate('/reading')}>
+              <Button variant="ghost" className="flex flex-col items-center space-y-1 p-2" onClick={() => navigate('/saved-words')}>
                 <div className="relative">
                   <GhostAvatar size="sm" accessory="glasses" className="w-6 h-6" />
                 </div>
-                <span className="text-xs font-button">Practice</span>
+                <span className="text-xs font-button">Saved Words</span>
               </Button>
               
-              <Button variant="ghost" className="flex flex-col items-center space-y-1 p-2">
+              <Button variant="ghost" className="flex flex-col items-center space-y-1 p-2" onClick={() => navigate('/daily-challenge')}>
                 <div className="relative">
                   <GhostAvatar size="sm" variant="sleepy" className="w-6 h-6" />
                 </div>
-                <span className="text-xs font-button">Word Bank</span>
+                <span className="text-xs font-button">Daily Challenge</span>
               </Button>
               
-              <Button variant="ghost" className="flex flex-col items-center space-y-1 p-2">
+              <Button variant="ghost" className="flex flex-col items-center space-y-1 p-2" onClick={() => navigate('/settings')}>
                 <div className="relative">
                   <GhostAvatar size="sm" variant="winking" className="w-6 h-6" />
                 </div>
-                <span className="text-xs font-button">Profile</span>
+                <span className="text-xs font-button">Settings</span>
               </Button>
             </div>
           </div>
