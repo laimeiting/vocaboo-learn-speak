@@ -43,15 +43,27 @@ const Auth = () => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/`,
+          skipBrowserRedirect: true,
         },
       });
 
       if (error) {
         toast.error(error.message);
+        return;
+      }
+
+      if (data?.url) {
+        if (window.top) {
+          window.top.location.href = data.url;
+        } else {
+          window.location.href = data.url;
+        }
+      } else {
+        toast.error('Unable to start Google sign-in. Please try again.');
       }
     } catch (error) {
       toast.error('An error occurred. Please try again.');
