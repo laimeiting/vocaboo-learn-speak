@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, Tv, Music, Home } from 'lucide-react';
+import { Home, BookmarkCheck, Trophy, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Navigation = () => {
@@ -34,35 +34,35 @@ const Navigation = () => {
             </Button>
             
             <Button
-              variant={isActive('/reading') ? 'default' : 'ghost'}
+              variant={isActive('/saved-words') ? 'default' : 'ghost'}
               size="sm"
               asChild
             >
-              <Link to="/reading" className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4" />
-                <span className="hidden sm:inline">Reading</span>
+              <Link to="/saved-words" className="flex items-center gap-2">
+                <BookmarkCheck className="w-4 h-4" />
+                <span className="hidden sm:inline">Saved Words</span>
               </Link>
             </Button>
             
             <Button
-              variant={isActive('/shows') ? 'default' : 'ghost'}
+              variant={isActive('/daily-challenge') ? 'default' : 'ghost'}
               size="sm"
               asChild
             >
-              <Link to="/shows" className="flex items-center gap-2">
-                <Tv className="w-4 h-4" />
-                <span className="hidden sm:inline">Shows</span>
+              <Link to="/daily-challenge" className="flex items-center gap-2">
+                <Trophy className="w-4 h-4" />
+                <span className="hidden sm:inline">Daily Challenge</span>
               </Link>
             </Button>
             
             <Button
-              variant={isActive('/songs') ? 'default' : 'ghost'}
+              variant={isActive('/settings') ? 'default' : 'ghost'}
               size="sm"
               asChild
             >
-              <Link to="/songs" className="flex items-center gap-2">
-                <Music className="w-4 h-4" />
-                <span className="hidden sm:inline">Songs</span>
+              <Link to="/settings" className="flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline">Settings</span>
               </Link>
             </Button>
           </div>
