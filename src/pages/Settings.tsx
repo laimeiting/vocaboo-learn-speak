@@ -1,0 +1,212 @@
+import { useState } from 'react';
+import { ArrowLeft, Volume2, VolumeX, Globe, Bell, BellOff, User, Mail } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useTheme } from 'next-themes';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import GhostAvatar from '@/components/GhostAvatar';
+import SpeechBubble from '@/components/SpeechBubble';
+import { toast } from '@/hooks/use-toast';
+
+const Settings = () => {
+  const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [language, setLanguage] = useState('en');
+  const [dailyGoal, setDailyGoal] = useState('10');
+  const [name, setName] = useState('Alex');
+  const [email, setEmail] = useState('alex@example.com');
+
+  const handleSave = () => {
+    toast({
+      title: "Settings Saved! 👻",
+      description: "Your preferences have been updated successfully.",
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary-light/20 via-secondary-light/15 to-accent-light/20"
+         style={{ background: 'var(--gradient-hero)' }}>
+      <div className="relative z-10 p-4 max-w-md mx-auto pb-24">
+        {/* Header */}
+        <header className="flex items-center justify-between mb-6">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => navigate('/')}
+            className="flex items-center space-x-2"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Back</span>
+          </Button>
+          
+          <div className="flex items-center space-x-2">
+            <GhostAvatar size="sm" accessory="hat" className="w-8 h-8" />
+            <h1 className="text-2xl font-heading font-bold text-foreground">
+              Settings
+            </h1>
+          </div>
+
+          <div className="w-20" /> {/* Spacer for alignment */}
+        </header>
+
+        {/* Intro Message */}
+        <div className="mb-6 flex items-start space-x-3">
+          <GhostAvatar size="md" variant="happy" floating />
+          <SpeechBubble variant="default" position="left" className="flex-1">
+            <p className="font-body text-sm">
+              Customize your learning experience! ⚙️
+            </p>
+          </SpeechBubble>
+        </div>
+
+        {/* Profile Settings */}
+        <Card className="mb-4 backdrop-blur border-0" style={{ background: 'var(--gradient-card)' }}>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-foreground">
+              <User className="w-5 h-5" />
+              <span>Profile</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter your name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Learning Preferences */}
+        <Card className="mb-4 backdrop-blur border-0" style={{ background: 'var(--gradient-card)' }}>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-foreground">
+              <Globe className="w-5 h-5" />
+              <span>Learning Preferences</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="language">Learning Language</Label>
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger id="language">
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="es">Spanish</SelectItem>
+                  <SelectItem value="fr">French</SelectItem>
+                  <SelectItem value="de">German</SelectItem>
+                  <SelectItem value="ja">Japanese</SelectItem>
+                  <SelectItem value="zh">Chinese</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="dailyGoal">Daily Goal (minutes)</Label>
+              <Select value={dailyGoal} onValueChange={setDailyGoal}>
+                <SelectTrigger id="dailyGoal">
+                  <SelectValue placeholder="Select daily goal" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5 minutes</SelectItem>
+                  <SelectItem value="10">10 minutes</SelectItem>
+                  <SelectItem value="15">15 minutes</SelectItem>
+                  <SelectItem value="20">20 minutes</SelectItem>
+                  <SelectItem value="30">30 minutes</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* App Settings */}
+        <Card className="mb-4 backdrop-blur border-0" style={{ background: 'var(--gradient-card)' }}>
+          <CardHeader>
+            <CardTitle className="text-foreground">App Settings</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                <Label htmlFor="sound" className="cursor-pointer">Sound Effects</Label>
+              </div>
+              <Switch
+                id="sound"
+                checked={soundEnabled}
+                onCheckedChange={setSoundEnabled}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                {notificationsEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
+                <Label htmlFor="notifications" className="cursor-pointer">Notifications</Label>
+              </div>
+              <Switch
+                id="notifications"
+                checked={notificationsEnabled}
+                onCheckedChange={setNotificationsEnabled}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="theme" className="cursor-pointer">Theme</Label>
+              <Select value={theme} onValueChange={setTheme}>
+                <SelectTrigger id="theme" className="w-32">
+                  <SelectValue placeholder="Select theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="system">System</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Save Button */}
+        <Button 
+          onClick={handleSave}
+          className="w-full"
+          size="lg"
+        >
+          Save Settings
+        </Button>
+
+        {/* Account Info */}
+        <Card className="mt-4 backdrop-blur border-0" style={{ background: 'var(--gradient-card)' }}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>App Version</span>
+              <span>1.0.0</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Settings;

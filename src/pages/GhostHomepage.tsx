@@ -96,7 +96,7 @@ const GhostHomepage = () => {
               {theme === 'dark' ? <Moon className="w-4 h-4 ml-1" /> : <Sun className="w-4 h-4 ml-1" />}
             </Button>
             
-            <Button variant="ghost" size="sm" className="relative">
+            <Button variant="ghost" size="sm" className="relative" onClick={() => navigate('/notifications')}>
               <GhostAvatar size="sm" className="w-6 h-6" />
               <Bell className="w-4 h-4 ml-1" />
               {userData.notifications > 0 && (
@@ -106,7 +106,7 @@ const GhostHomepage = () => {
               )}
             </Button>
             
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/settings')}>
               <GhostAvatar size="sm" accessory="hat" className="w-6 h-6" />
               <Settings className="w-4 h-4 ml-1" />
             </Button>
