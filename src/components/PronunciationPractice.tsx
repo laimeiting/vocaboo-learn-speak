@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Mic, Square, Volume2, Loader2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/use-toast';
@@ -104,12 +104,15 @@ const PronunciationPractice: React.FC<PronunciationPracticeProps> = ({
         title: "Analysis Complete",
         description: `Pronunciation accuracy: ${data.score}%`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error processing audio:', error);
+      const friendly = error?.name === 'FunctionsHttpError'
+        ? 'Service is temporarily unavailable or rate limited. Please try again in a minute.'
+        : 'Failed to analyze pronunciation';
       toast({
-        title: "Error",
-        description: "Failed to analyze pronunciation",
-        variant: "destructive",
+        title: 'Pronunciation Unavailable',
+        description: friendly,
+        variant: 'destructive',
       });
     } finally {
       setIsProcessing(false);
@@ -168,6 +171,9 @@ const PronunciationPractice: React.FC<PronunciationPracticeProps> = ({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Pronunciation Practice - {title}</DialogTitle>
+          <DialogDescription>
+            Record your voice and get instant, friendly feedback on how close you are to the original.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">

@@ -75,8 +75,25 @@ serve(async (req) => {
     });
 
     if (!whisperResponse.ok) {
+      const status = whisperResponse.status;
       const errorText = await whisperResponse.text();
-      console.error('Whisper API error:', whisperResponse.status, errorText);
+      console.error('Whisper API error:', status, errorText);
+      // Gracefully handle rate limits / quota issues
+      if (status === 429 || errorText.includes('insufficient_quota')) {
+        return new Response(
+          JSON.stringify({
+            error: 'Speech-to-text rate limit or quota exceeded. Please try again later.'
+          }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      // Payment required (rare for this endpoint, but handle defensively)
+      if (status === 402) {
+        return new Response(
+          JSON.stringify({ error: 'Payment required by the transcription provider. Please check billing.' }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
       throw new Error(`Whisper API error: ${errorText}`);
     }
 
@@ -105,13 +122,27 @@ serve(async (req) => {
             content: `Original text: "${originalText}"\n\nWhat the student said: "${transcribedText}"\n\nProvide feedback on their pronunciation accuracy. If they got it right or very close, praise them! If there are differences, point them out gently and suggest improvements.`
           }
         ],
-        max_completion_tokens: 200,
+        // Use legacy param for gpt-4o-mini
+        max_tokens: 200,
       }),
     });
 
     if (!feedbackResponse.ok) {
+      const status = feedbackResponse.status;
       const errorText = await feedbackResponse.text();
-      console.error('GPT API error:', feedbackResponse.status, errorText);
+      console.error('GPT API error:', status, errorText);
+      if (status === 429) {
+        return new Response(
+          JSON.stringify({ error: 'Feedback service rate limit exceeded. Please try again later.' }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      if (status === 402) {
+        return new Response(
+          JSON.stringify({ error: 'Payment required by the feedback provider. Please check billing.' }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
       throw new Error(`GPT API error: ${errorText}`);
     }
 
