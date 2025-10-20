@@ -110,7 +110,7 @@ const Auth = () => {
           <div className="flex justify-center mb-4">
             <GhostAvatar size="lg" accessory="crown" />
           </div>
-          <CardTitle className="text-3xl font-heading">Vocabuly</CardTitle>
+          <CardTitle className="text-3xl font-heading">Vocaboo</CardTitle>
           <CardDescription>
             {isLogin ? 'Welcome back! Sign in to continue' : 'Create an account to get started'}
           </CardDescription>
