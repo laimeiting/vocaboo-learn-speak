@@ -42,15 +42,33 @@ const Auth = () => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/`,
+          skipBrowserRedirect: true,
         },
       });
 
       if (error) {
         toast.error(error.message);
+        setLoading(false);
+        return;
+      }
+
+      if (data?.url) {
+        try {
+          const topWindow = window.top ?? window.self;
+          if (topWindow && topWindow !== window.self) {
+            topWindow.location.href = data.url; // escape iframe
+          } else {
+            window.location.href = data.url; // regular redirect
+          }
+        } catch {
+          window.location.href = data.url; // fallback
+        }
+      } else {
+        toast.error('Unable to start Google sign-in. Please try again.');
         setLoading(false);
       }
     } catch (error) {
