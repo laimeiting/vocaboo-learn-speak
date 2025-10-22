@@ -42,35 +42,21 @@ const Auth = () => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/`,
-          skipBrowserRedirect: true,
         },
       });
 
       if (error) {
         toast.error(error.message);
-        return;
-      }
-
-      if (data?.url) {
-        // Try to open in new tab (works in embedded contexts)
-        const popup = window.open(data.url, '_blank', 'noopener,noreferrer');
-        
-        // If popup is blocked, fallback to same window redirect
-        if (!popup) {
-          window.location.href = data.url;
-        }
-      } else {
-        toast.error('Unable to start Google sign-in. Please try again.');
+        setLoading(false);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error('Google sign-in error:', error);
       toast.error(message || 'An error occurred. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
