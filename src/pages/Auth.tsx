@@ -57,6 +57,7 @@ const Auth = () => {
       }
 
       if (data?.url) {
+        console.log('Redirecting to Google OAuth URL:', data.url);
         if (window.top) {
           window.top.location.href = data.url;
         } else {
@@ -66,7 +67,9 @@ const Auth = () => {
         toast.error('Unable to start Google sign-in. Please try again.');
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Google sign-in error:', error);
+      toast.error(message || 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
