@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from 'sonner';
 import { z } from 'zod';
 import GhostAvatar from '@/components/GhostAvatar';
-import { ExternalLink } from 'lucide-react';
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }).max(255),
@@ -23,7 +22,6 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isEmbedded] = useState(() => window.self !== window.top);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -154,24 +152,6 @@ const Auth = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isEmbedded && (
-            <div className="mb-4 p-3 bg-muted rounded-lg border border-border">
-              <p className="text-sm text-muted-foreground mb-2">
-                Sign-in works best in a new tab
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => window.open(window.location.href, '_blank', 'noopener,noreferrer')}
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Open in New Tab
-              </Button>
-            </div>
-          )}
-          
           <Button
             type="button"
             variant="outline"
