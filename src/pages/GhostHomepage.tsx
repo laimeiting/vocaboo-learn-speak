@@ -17,12 +17,10 @@ const GhostHomepage = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
-      setLoading(false);
       if (!session) {
         navigate('/auth');
       }
@@ -30,7 +28,6 @@ const GhostHomepage = () => {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      setLoading(false);
       if (!session) {
         navigate('/auth');
       }
@@ -38,14 +35,6 @@ const GhostHomepage = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--gradient-hero)' }}>
-        <GhostAvatar size="xl" floating />
-      </div>
-    );
-  }
   
   // Mock user data
   const userData = {
