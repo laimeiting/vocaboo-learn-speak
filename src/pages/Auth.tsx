@@ -65,7 +65,10 @@ const Auth = () => {
             window.location.href = data.url; // regular redirect
           }
         } catch {
-          window.location.href = data.url; // fallback
+          // If we can't escape iframe, open in new tab instead
+          window.open(data.url, '_blank', 'noopener,noreferrer');
+          toast.success('Google sign-in opened in a new tab. Complete login and return here.');
+          setLoading(false);
         }
       } else {
         toast.error('Unable to start Google sign-in. Please try again.');
