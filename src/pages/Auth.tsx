@@ -36,7 +36,23 @@ const Auth = () => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Listen for storage changes (when OAuth completes in another tab)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key?.includes('supabase.auth.token')) {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) {
+            navigate('/');
+          }
+        });
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [navigate]);
 
   const handleGoogleSignIn = async () => {
