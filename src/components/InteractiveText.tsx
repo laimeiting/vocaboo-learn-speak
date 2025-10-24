@@ -34,32 +34,34 @@ const InteractiveText = ({
 
   const handleWordClick = async (word: string) => {
     const cleanWord = word.toLowerCase().replace(/[^\w]/g, '');
+    
+    // Only open popup for vocabulary words
     if (words[cleanWord]) {
       setSelectedWord(cleanWord);
+    }
+    
+    // Fetch translation for any word clicked
+    if (!translations[cleanWord] && !loadingTranslations.has(cleanWord)) {
+      setLoadingTranslations(prev => new Set([...prev, cleanWord]));
       
-      // Fetch translation if not already loaded
-      if (!translations[cleanWord] && !loadingTranslations.has(cleanWord)) {
-        setLoadingTranslations(prev => new Set([...prev, cleanWord]));
+      try {
+        const { data, error } = await supabase.functions.invoke('translate-word', {
+          body: { word: cleanWord, targetLanguage: 'es' }
+        });
         
-        try {
-          const { data, error } = await supabase.functions.invoke('translate-word', {
-            body: { word: cleanWord, targetLanguage: 'es' }
-          });
-          
-          if (error) throw error;
-          
-          if (data?.translation) {
-            setTranslations(prev => ({ ...prev, [cleanWord]: data.translation }));
-          }
-        } catch (error) {
-          console.error('Translation error:', error);
-        } finally {
-          setLoadingTranslations(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(cleanWord);
-            return newSet;
-          });
+        if (error) throw error;
+        
+        if (data?.translation) {
+          setTranslations(prev => ({ ...prev, [cleanWord]: data.translation }));
         }
+      } catch (error) {
+        console.error('Translation error:', error);
+      } finally {
+        setLoadingTranslations(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(cleanWord);
+          return newSet;
+        });
       }
     }
   };
@@ -82,39 +84,37 @@ const InteractiveText = ({
             }
 
             const cleanWord = word.toLowerCase().replace(/[^\w]/g, '');
-            const isInteractive = words[cleanWord];
+            const isVocabWord = words[cleanWord];
             const isSaved = savedWords.has(cleanWord);
             const punctuation = word.match(/[^\w\s]/g)?.join('') || '';
             const wordWithoutPunctuation = word.replace(/[^\w\s]/g, '');
 
-            if (isInteractive) {
-              return (
-                <span key={wordIndex} className="inline-flex flex-col items-start gap-0.5">
-                  <span
-                    onClick={() => handleWordClick(word)}
-                    className={cn(
-                      "word-highlight cursor-pointer",
-                      isSaved && "saved"
-                    )}
-                  >
-                    {wordWithoutPunctuation}
-                  </span>
-                  {translations[cleanWord] && (
-                    <span className="text-xs text-primary/70 font-medium -mt-1">
-                      {translations[cleanWord]}
-                    </span>
+            // Make all words clickable
+            return (
+              <span key={wordIndex} className="inline-flex flex-col items-start gap-0.5">
+                <span
+                  onClick={() => handleWordClick(word)}
+                  className={cn(
+                    "cursor-pointer hover:bg-primary/10 rounded px-0.5 transition-colors",
+                    isVocabWord && "word-highlight",
+                    isSaved && "saved"
                   )}
-                  {loadingTranslations.has(cleanWord) && (
-                    <span className="text-xs text-muted-foreground animate-pulse -mt-1">
-                      ...
-                    </span>
-                  )}
-                  {punctuation}
+                >
+                  {wordWithoutPunctuation}
                 </span>
-              );
-            }
-
-            return <span key={wordIndex}>{word}</span>;
+                {translations[cleanWord] && (
+                  <span className="text-xs text-primary/70 font-medium -mt-1">
+                    {translations[cleanWord]}
+                  </span>
+                )}
+                {loadingTranslations.has(cleanWord) && (
+                  <span className="text-xs text-muted-foreground animate-pulse -mt-1">
+                    ...
+                  </span>
+                )}
+                {punctuation}
+              </span>
+            );
           })}
         </span>
       );
