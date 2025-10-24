@@ -20,6 +20,13 @@ interface InteractiveTextProps {
   style?: React.CSSProperties;
 }
 
+interface DynamicWordData {
+  definition: string;
+  partOfSpeech: string;
+  pronunciation: string;
+  examples: string[];
+}
+
 const InteractiveText = ({ 
   content, 
   words, 
@@ -31,13 +38,39 @@ const InteractiveText = ({
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [loadingTranslations, setLoadingTranslations] = useState<Set<string>>(new Set());
+  const [dynamicWordData, setDynamicWordData] = useState<Record<string, DynamicWordData>>({});
+  const [loadingDefinition, setLoadingDefinition] = useState(false);
 
   const handleWordClick = async (word: string) => {
     const cleanWord = word.toLowerCase().replace(/[^\w]/g, '');
     
-    // Only open popup for vocabulary words
-    if (words[cleanWord]) {
-      setSelectedWord(cleanWord);
+    // Skip if empty or too short
+    if (!cleanWord || cleanWord.length < 2) return;
+    
+    // Set selected word and fetch definition if not already available
+    setSelectedWord(cleanWord);
+    
+    // If it's a pre-defined vocabulary word or we already have the data, we're done
+    if (words[cleanWord] || dynamicWordData[cleanWord]) {
+      return;
+    }
+    
+    // Fetch definition for any word clicked
+    setLoadingDefinition(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('define-word', {
+        body: { word: cleanWord }
+      });
+      
+      if (error) throw error;
+      
+      if (data) {
+        setDynamicWordData(prev => ({ ...prev, [cleanWord]: data }));
+      }
+    } catch (error) {
+      console.error('Definition error:', error);
+    } finally {
+      setLoadingDefinition(false);
     }
     
     // Fetch translation for any word clicked
@@ -127,17 +160,18 @@ const InteractiveText = ({
         {renderText()}
       </div>
       
-      {selectedWord && words[selectedWord] && (
+      {selectedWord && (words[selectedWord] || dynamicWordData[selectedWord]) && (
         <WordDefinitionPopup
           word={selectedWord}
-          definition={words[selectedWord].definition}
-          partOfSpeech={words[selectedWord].partOfSpeech}
-          pronunciation={words[selectedWord].pronunciation}
-          examples={words[selectedWord].examples}
+          definition={words[selectedWord]?.definition || dynamicWordData[selectedWord]?.definition || 'Loading...'}
+          partOfSpeech={words[selectedWord]?.partOfSpeech || dynamicWordData[selectedWord]?.partOfSpeech || ''}
+          pronunciation={words[selectedWord]?.pronunciation || dynamicWordData[selectedWord]?.pronunciation || ''}
+          examples={words[selectedWord]?.examples || dynamicWordData[selectedWord]?.examples || []}
           isOpen={!!selectedWord}
           onClose={() => setSelectedWord(null)}
           onSave={onSaveWord}
           isSaved={savedWords.has(selectedWord)}
+          isLoading={loadingDefinition}
         />
       )}
     </div>

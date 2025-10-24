@@ -14,6 +14,7 @@ interface WordDefinitionPopupProps {
   onClose: () => void;
   onSave: (word: string) => void;
   isSaved: boolean;
+  isLoading?: boolean;
 }
 
 const WordDefinitionPopup = ({
@@ -25,7 +26,8 @@ const WordDefinitionPopup = ({
   isOpen,
   onClose,
   onSave,
-  isSaved
+  isSaved,
+  isLoading = false
 }: WordDefinitionPopupProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -88,20 +90,26 @@ const WordDefinitionPopup = ({
           {/* Definition */}
           <div>
             <h4 className="font-semibold text-foreground mb-2">Definition</h4>
-            <p className="text-muted-foreground leading-relaxed">{definition}</p>
+            {isLoading ? (
+              <p className="text-muted-foreground animate-pulse">Loading definition...</p>
+            ) : (
+              <p className="text-muted-foreground leading-relaxed">{definition}</p>
+            )}
           </div>
 
           {/* Examples */}
-          <div>
-            <h4 className="font-semibold text-foreground mb-2">Examples</h4>
-            <div className="space-y-2">
-              {examples.map((example, index) => (
-                <div key={index} className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-sm text-muted-foreground italic">"{example}"</p>
-                </div>
-              ))}
+          {!isLoading && examples.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-foreground mb-2">Examples</h4>
+              <div className="space-y-2">
+                {examples.map((example, index) => (
+                  <div key={index} className="bg-muted/50 rounded-lg p-3">
+                    <p className="text-sm text-muted-foreground italic">"{example}"</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Actions */}
           <div className="flex gap-2 pt-2">
