@@ -51,6 +51,7 @@ const Reading = () => {
   const [lineHeight, setLineHeight] = useState(1.8);
   const [isReading, setIsReading] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [ttsLoading, setTtsLoading] = useState(false);
 
   useEffect(() => {
     fetchBooks();
@@ -163,7 +164,7 @@ const Reading = () => {
     }
 
     // Otherwise, start new audio
-    setIsReading(true);
+    setTtsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('text-to-speech', {
         body: { 
@@ -175,14 +176,16 @@ const Reading = () => {
       if (error) throw error;
 
       const audio = new Audio(`data:audio/mpeg;base64,${data.audioContent}`);
-      setCurrentAudio(audio);
-      
+      audio.onplay = () => setIsReading(true);
+      audio.onpause = () => setIsReading(false);
       audio.onended = () => {
         setIsReading(false);
         setCurrentAudio(null);
       };
+      setCurrentAudio(audio);
 
       await audio.play();
+      setTtsLoading(false);
     } catch (error) {
       console.error('Error reading aloud:', error);
       toast({
@@ -190,6 +193,7 @@ const Reading = () => {
         description: "Failed to read book aloud",
         variant: "destructive",
       });
+      setTtsLoading(false);
       setIsReading(false);
     }
   };
@@ -360,7 +364,7 @@ const Reading = () => {
                 variant="outline"
                 size="icon"
                 onClick={handleReadAloud}
-                disabled={isReading}
+                disabled={ttsLoading}
               >
                 {isReading ? (
                   <Pause className="w-4 h-4" />
