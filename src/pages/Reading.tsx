@@ -13,7 +13,7 @@ import SavedWordsList from '@/components/SavedWordsList';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { ArrowLeft, BookOpen, Heart, Settings, Search, Clock, BookMarked } from 'lucide-react';
+import { ArrowLeft, BookOpen, Heart, Settings, Search, Clock, BookMarked, Volume2, Pause } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -49,6 +49,8 @@ const Reading = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [fontSize, setFontSize] = useState(18);
   const [lineHeight, setLineHeight] = useState(1.8);
+  const [isReading, setIsReading] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     fetchBooks();
@@ -141,6 +143,47 @@ const Reading = () => {
     const newSavedWords = new Set(savedWords);
     newSavedWords.delete(word);
     setSavedWords(newSavedWords);
+  };
+
+  const handleReadAloud = async () => {
+    if (!selectedBook) return;
+
+    if (isReading && currentAudio) {
+      currentAudio.pause();
+      setCurrentAudio(null);
+      setIsReading(false);
+      return;
+    }
+
+    setIsReading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('text-to-speech', {
+        body: { 
+          text: selectedBook.content,
+          voice: 'alloy'
+        }
+      });
+
+      if (error) throw error;
+
+      const audio = new Audio(`data:audio/mpeg;base64,${data.audioContent}`);
+      setCurrentAudio(audio);
+      
+      audio.onended = () => {
+        setIsReading(false);
+        setCurrentAudio(null);
+      };
+
+      await audio.play();
+    } catch (error) {
+      console.error('Error reading aloud:', error);
+      toast({
+        title: "Error",
+        description: "Failed to read book aloud",
+        variant: "destructive",
+      });
+      setIsReading(false);
+    }
   };
 
   // Book list view
@@ -305,6 +348,18 @@ const Reading = () => {
               Back to Library
             </Button>
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleReadAloud}
+                disabled={isReading}
+              >
+                {isReading ? (
+                  <Pause className="w-4 h-4" />
+                ) : (
+                  <Volume2 className="w-4 h-4" />
+                )}
+              </Button>
               <Button
                 variant="outline"
                 size="icon"
