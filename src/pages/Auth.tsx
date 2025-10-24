@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import GhostAvatar from '@/components/GhostAvatar';
@@ -22,6 +23,8 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -161,6 +164,35 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!resetEmail.trim()) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    try {
+      const validatedEmail = z.string().email().parse(resetEmail.trim());
+      const { error } = await supabase.auth.resetPasswordForEmail(validatedEmail, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+
+      toast.success('Password reset email sent! Check your inbox.');
+      setShowForgotPassword(false);
+      setResetEmail('');
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error('Please enter a valid email address');
+      } else {
+        toast.error('An error occurred. Please try again.');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4" 
          style={{ background: 'var(--gradient-primary)' }}>
@@ -230,7 +262,44 @@ const Auth = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex justify-between items-center">
+                <Label htmlFor="password">Password</Label>
+                {isLogin && (
+                  <Dialog open={showForgotPassword} onOpenChange={setShowForgotPassword}>
+                    <DialogTrigger asChild>
+                      <button
+                        type="button"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        Forgot password?
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Reset Password</DialogTitle>
+                        <DialogDescription>
+                          Enter your email address and we'll send you a link to reset your password.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 mt-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="reset-email">Email</Label>
+                          <Input
+                            id="reset-email"
+                            type="email"
+                            placeholder="your@email.com"
+                            value={resetEmail}
+                            onChange={(e) => setResetEmail(e.target.value)}
+                          />
+                        </div>
+                        <Button onClick={handleForgotPassword} className="w-full">
+                          Send Reset Link
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
+              </div>
               <Input
                 id="password"
                 type="password"
