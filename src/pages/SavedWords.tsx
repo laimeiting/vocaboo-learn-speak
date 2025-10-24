@@ -7,6 +7,12 @@ import { Link } from 'react-router-dom';
 import VocabooMascot from '@/components/VocabooMascot';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const SavedWords = () => {
   // Sample saved words data - in real app this would come from database
@@ -47,15 +53,18 @@ const SavedWords = () => {
   ]);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState<string>('all');
 
   const handleRemoveWord = (word: string) => {
     setSavedWords(prevWords => prevWords.filter(w => w.word !== word));
     toast.success(`"${word}" removed from your saved words`);
   };
 
-  const filteredWords = savedWords.filter(word =>
-    word.word.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredWords = savedWords.filter(word => {
+    const matchesSearch = word.word.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterType === 'all' || word.partOfSpeech === filterType;
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -102,9 +111,30 @@ const SavedWords = () => {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline" size="icon">
-              <Filter className="w-4 h-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className={filterType !== 'all' ? 'border-primary' : ''}>
+                  <Filter className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setFilterType('all')}>
+                  All Words
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterType('noun')}>
+                  Nouns
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterType('verb')}>
+                  Verbs
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterType('adjective')}>
+                  Adjectives
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterType('adverb')}>
+                  Adverbs
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </Card>
 
