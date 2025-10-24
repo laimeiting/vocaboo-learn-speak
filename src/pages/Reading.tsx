@@ -148,13 +148,21 @@ const Reading = () => {
   const handleReadAloud = async () => {
     if (!selectedBook) return;
 
+    // If audio is playing, pause it
     if (isReading && currentAudio) {
       currentAudio.pause();
-      setCurrentAudio(null);
       setIsReading(false);
       return;
     }
 
+    // If audio exists but is paused, resume it
+    if (currentAudio && currentAudio.paused) {
+      await currentAudio.play();
+      setIsReading(true);
+      return;
+    }
+
+    // Otherwise, start new audio
     setIsReading(true);
     try {
       const { data, error } = await supabase.functions.invoke('text-to-speech', {
