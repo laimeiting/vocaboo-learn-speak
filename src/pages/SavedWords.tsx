@@ -6,10 +6,11 @@ import { ArrowLeft, BookOpen, Search, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import VocabooMascot from '@/components/VocabooMascot';
 import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 const SavedWords = () => {
   // Sample saved words data - in real app this would come from database
-  const [savedWords] = useState([
+  const [savedWords, setSavedWords] = useState([
     {
       word: "magnificent",
       definition: "Extremely beautiful, elaborate, or impressive; splendid",
@@ -48,8 +49,8 @@ const SavedWords = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleRemoveWord = (word: string) => {
-    console.log('Remove word:', word);
-    // In real app, this would update the database
+    setSavedWords(prevWords => prevWords.filter(w => w.word !== word));
+    toast.success(`"${word}" removed from your saved words`);
   };
 
   const filteredWords = savedWords.filter(word =>
