@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      books: {
+        Row: {
+          author: string | null
+          content: string
+          created_at: string
+          description: string | null
+          difficulty_level: string
+          genre: string[] | null
+          id: string
+          image_url: string | null
+          page_count: number | null
+          published_year: number | null
+          reading_time_minutes: number | null
+          title: string
+          updated_at: string
+          vocabulary_words: Json | null
+        }
+        Insert: {
+          author?: string | null
+          content: string
+          created_at?: string
+          description?: string | null
+          difficulty_level: string
+          genre?: string[] | null
+          id?: string
+          image_url?: string | null
+          page_count?: number | null
+          published_year?: number | null
+          reading_time_minutes?: number | null
+          title: string
+          updated_at?: string
+          vocabulary_words?: Json | null
+        }
+        Update: {
+          author?: string | null
+          content?: string
+          created_at?: string
+          description?: string | null
+          difficulty_level?: string
+          genre?: string[] | null
+          id?: string
+          image_url?: string | null
+          page_count?: number | null
+          published_year?: number | null
+          reading_time_minutes?: number | null
+          title?: string
+          updated_at?: string
+          vocabulary_words?: Json | null
+        }
+        Relationships: []
+      }
       episodes: {
         Row: {
           created_at: string
