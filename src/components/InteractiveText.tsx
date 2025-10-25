@@ -41,6 +41,12 @@ const InteractiveText = ({
   const [dynamicWordData, setDynamicWordData] = useState<Record<string, DynamicWordData>>({});
   const [loadingDefinition, setLoadingDefinition] = useState(false);
 
+  // Clean escaped characters from content
+  const cleanContent = content
+    .replace(/\\'/g, "'")
+    .replace(/\\"/g, '"')
+    .replace(/\\n/g, ' ');
+
   const handleWordClick = async (word: string) => {
     const cleanWord = word.toLowerCase().replace(/[^\w]/g, '');
     
@@ -100,7 +106,7 @@ const InteractiveText = ({
   };
 
   const renderText = () => {
-    const sentences = content.split(/([.!?]+)/);
+    const sentences = cleanContent.split(/([.!?]+)/);
     
     return sentences.map((sentence, sentenceIndex) => {
       if (/[.!?]+/.test(sentence)) {
