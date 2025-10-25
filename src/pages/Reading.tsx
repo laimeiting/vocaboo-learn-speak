@@ -13,7 +13,7 @@ import SavedWordsList from '@/components/SavedWordsList';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { ArrowLeft, BookOpen, Heart, Settings, Search, Clock, BookMarked, Volume2, Pause } from 'lucide-react';
+import { ArrowLeft, BookOpen, Heart, Settings, Search, Clock, BookMarked, Volume2, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -52,6 +52,7 @@ const Reading = () => {
   const [isReading, setIsReading] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [ttsLoading, setTtsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchBooks();
@@ -124,10 +125,14 @@ const Reading = () => {
 
   const handleReadBook = (book: Book) => {
     setSelectedBook(book);
+    // Load last read page from localStorage
+    const savedPage = localStorage.getItem(`book_page_${book.id}`);
+    setCurrentPage(savedPage ? parseInt(savedPage) : 1);
   };
 
   const handleBackToList = () => {
     setSelectedBook(null);
+    setCurrentPage(1);
   };
 
   const handleWordClick = (word: string, definition: string) => {
@@ -334,7 +339,7 @@ const Reading = () => {
     );
   }
 
-  // Reading view
+  // Reading view - Pagination logic
   const words = selectedBook.vocabulary_words || {};
   const savedWordsArray = Array.from(savedWords).map(word => ({
     word,
@@ -344,6 +349,22 @@ const Reading = () => {
     examples: words[word]?.examples || [],
     savedAt: new Date(),
   }));
+
+  // Split content into pages (~300-500 words)
+  const WORDS_PER_PAGE = 400;
+  const contentWords = selectedBook.content.split(/\s+/);
+  const totalPages = Math.ceil(contentWords.length / WORDS_PER_PAGE);
+  const startIndex = (currentPage - 1) * WORDS_PER_PAGE;
+  const endIndex = startIndex + WORDS_PER_PAGE;
+  const pageContent = contentWords.slice(startIndex, endIndex).join(' ');
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    // Save current page to localStorage
+    localStorage.setItem(`book_page_${selectedBook.id}`, newPage.toString());
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -416,7 +437,7 @@ const Reading = () => {
           {/* Interactive Text */}
           <Card className="p-8">
             <InteractiveText
-              content={selectedBook.content}
+              content={pageContent}
               words={words}
               onSaveWord={handleSaveWord}
               savedWords={savedWords}
@@ -426,6 +447,36 @@ const Reading = () => {
               }}
             />
           </Card>
+
+          {/* Pagination */}
+          <div className="flex items-center justify-between mt-6">
+            <Button
+              variant="outline"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="gap-2"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Previous
+            </Button>
+            
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>Page</span>
+              <span className="font-semibold text-foreground">{currentPage}</span>
+              <span>of</span>
+              <span className="font-semibold text-foreground">{totalPages}</span>
+            </div>
+            
+            <Button
+              variant="outline"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="gap-2"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
 
           {/* Saved Words Dialog */}
           <Dialog open={showSavedWords} onOpenChange={setShowSavedWords}>
