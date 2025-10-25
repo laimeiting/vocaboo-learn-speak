@@ -45,7 +45,13 @@ const InteractiveText = ({
   const cleanContent = content
     .replace(/\\'/g, "'")
     .replace(/\\"/g, '"')
-    .replace(/\\n/g, ' ');
+    .replace(/\\n/g, ' ')
+    .replace(/\\r/g, '')
+    .replace(/\\t/g, ' ')
+    .replace(/\\\\/g, '')
+    .replace(/\\b/g, '')
+    .replace(/\\f/g, '')
+    .replace(/\\v/g, '');
 
   const handleWordClick = async (word: string) => {
     const cleanWord = word.toLowerCase().replace(/[^\w]/g, '');
