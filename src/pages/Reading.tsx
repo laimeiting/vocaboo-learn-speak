@@ -315,12 +315,10 @@ const Reading = () => {
                         <span>{book.reading_time_minutes} min</span>
                       </div>
                     )}
-                    {book.page_count && (
-                      <div className="flex items-center gap-1">
-                        <BookMarked className="w-4 h-4" />
-                        <span>{book.page_count} pages</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-1">
+                      <BookMarked className="w-4 h-4" />
+                      <span>{Math.ceil(book.content.split(/\s+/).length / 400)} pages</span>
+                    </div>
                   </div>
 
                   <Button 
