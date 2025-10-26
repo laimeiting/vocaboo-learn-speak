@@ -61,10 +61,17 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     });
   };
 
-  // Fetch audio from API
+  // Fetch audio from API or use existing URL
   useEffect(() => {
     const fetchAudio = async () => {
       if (!isOpen) return;
+      
+      // If song already has an audio URL, use it directly
+      if (song.audio_url) {
+        console.log('Using existing audio URL:', song.audio_url);
+        setAudioUrl(song.audio_url);
+        return;
+      }
       
       setIsLoadingAudio(true);
       try {
@@ -103,11 +110,19 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     };
 
     fetchAudio();
-  }, [song.id, isOpen, song.title, song.artist, toast]);
+  }, [song.id, song.audio_url, isOpen, song.title, song.artist, toast]);
 
-  // Fetch synchronized lyrics
+  // Fetch synchronized lyrics (only for database songs with UUID)
   useEffect(() => {
     const fetchLyricsLines = async () => {
+      // Only fetch lyrics if song ID is a valid UUID (from database)
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(song.id);
+      if (!isUUID) {
+        console.log('Skipping lyrics fetch for non-database song:', song.id);
+        setLyricsLines([]);
+        return;
+      }
+      
       try {
         const { data, error } = await supabase
           .from('lyrics_lines')
