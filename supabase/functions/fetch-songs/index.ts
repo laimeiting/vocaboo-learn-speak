@@ -89,7 +89,7 @@ serve(async (req) => {
       }
     }
 
-    // Also add some curated educational songs for learning (using database UUIDs)
+    // Also add some curated educational songs for learning (using database UUIDs + local audio)
     const educationalSongs: Song[] = [
       {
         id: '00000000-0000-0000-0000-000000000001',
@@ -100,6 +100,7 @@ serve(async (req) => {
         duration_seconds: 180,
         subtitle_languages: ['en'],
         vocabulary_words: ['grace', 'saved', 'wretch'],
+        audio_url: '/audio/amazing-grace.wav',
         lyrics: `Amazing grace! How sweet the sound
 That saved a wretch like me!
 I once was lost, but now am found;
@@ -124,6 +125,7 @@ And grace will lead me home.`,
         duration_seconds: 25,
         subtitle_languages: ['en'],
         vocabulary_words: ['birthday', 'happy', 'dear'],
+        audio_url: '/audio/happy-birthday.wav',
         lyrics: `Happy birthday to you
 Happy birthday to you
 Happy birthday, dear friend
@@ -138,6 +140,7 @@ Happy birthday to you`,
         duration_seconds: 60,
         subtitle_languages: ['en'],
         vocabulary_words: ['twinkle', 'star', 'wonder', 'diamond', 'sky'],
+        audio_url: '/audio/twinkle-twinkle.wav',
         lyrics: `Twinkle, twinkle, little star,
 How I wonder what you are!
 Up above the world so high,
@@ -154,6 +157,7 @@ How I wonder what you are!`,
         duration_seconds: 45,
         subtitle_languages: ['en'],
         vocabulary_words: ['lamb', 'fleece', 'white', 'snow', 'follow'],
+        audio_url: '/audio/mary-lamb.wav',
         lyrics: `Mary had a little lamb,
 Little lamb, little lamb,
 Mary had a little lamb,
@@ -173,6 +177,7 @@ The lamb was sure to go.`,
         duration_seconds: 90,
         subtitle_languages: ['en'],
         vocabulary_words: ['farm', 'animal', 'moo', 'oink', 'quack'],
+        audio_url: '/audio/old-macdonald.wav',
         lyrics: `Old MacDonald had a farm, E-I-E-I-O
 And on his farm he had a cow, E-I-E-I-O
 With a moo-moo here and a moo-moo there
@@ -194,6 +199,7 @@ Old MacDonald had a farm, E-I-E-I-O`,
         duration_seconds: 150,
         subtitle_languages: ['en'],
         vocabulary_words: ['auld', 'lang', 'syne', 'acquaintance', 'forgot'],
+        audio_url: '/audio/auld-lang-syne.wav',
         lyrics: `Should auld acquaintance be forgot,
 And never brought to mind?
 Should auld acquaintance be forgot,
