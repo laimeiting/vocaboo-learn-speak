@@ -46,13 +46,44 @@ const Songs = () => {
 
   const fetchSongs = async () => {
     try {
-      const { data, error } = await supabase
-        .from('songs')
-        .select('*')
-        .order('title', { ascending: true });
+      // First, try to get songs from API
+      const { data: apiData, error: apiError } = await supabase.functions.invoke('fetch-songs', {
+        body: { searchTerm: '', genre: 'all', difficulty: 'all' }
+      });
 
-      if (error) throw error;
-      setSongs((data || []) as Song[]);
+      if (apiError) {
+        console.error('API error:', apiError);
+        // Fallback to database songs
+        const { data: dbData, error: dbError } = await supabase
+          .from('songs')
+          .select('*')
+          .order('title', { ascending: true });
+        
+        if (dbError) throw dbError;
+        setSongs((dbData || []) as Song[]);
+      } else {
+        // Combine API songs with database songs
+        const apiSongs = apiData?.songs || [];
+        
+        const { data: dbData } = await supabase
+          .from('songs')
+          .select('*')
+          .order('title', { ascending: true });
+        
+        const dbSongs = (dbData || []) as Song[];
+        
+        // Merge and remove duplicates
+        const allSongs = [...apiSongs, ...dbSongs];
+        const uniqueSongs = allSongs.reduce((acc, song) => {
+          const key = `${song.title.toLowerCase()}-${song.artist.toLowerCase()}`;
+          if (!acc.has(key)) {
+            acc.set(key, song);
+          }
+          return acc;
+        }, new Map());
+        
+        setSongs(Array.from(uniqueSongs.values()));
+      }
     } catch (error) {
       console.error('Error fetching songs:', error);
       toast({
