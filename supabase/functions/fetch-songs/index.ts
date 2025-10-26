@@ -101,6 +101,20 @@ serve(async (req) => {
         audio_url: '/audio/amazing-grace.wav',
         subtitle_languages: ['en'],
         vocabulary_words: ['grace', 'saved', 'wretch'],
+        lyrics: `Amazing grace! How sweet the sound
+That saved a wretch like me!
+I once was lost, but now am found;
+Was blind, but now I see.
+
+'Twas grace that taught my heart to fear,
+And grace my fears relieved;
+How precious did that grace appear
+The hour I first believed.
+
+Through many dangers, toils and snares,
+I have already come;
+'Tis grace hath brought me safe thus far,
+And grace will lead me home.`,
       },
       {
         id: 'edu-2',
@@ -112,6 +126,10 @@ serve(async (req) => {
         audio_url: '/audio/happy-birthday.wav',
         subtitle_languages: ['en'],
         vocabulary_words: ['birthday', 'happy', 'dear'],
+        lyrics: `Happy birthday to you
+Happy birthday to you
+Happy birthday, dear friend
+Happy birthday to you`,
       },
       {
         id: 'edu-3',
@@ -123,6 +141,12 @@ serve(async (req) => {
         audio_url: '/audio/twinkle-twinkle.wav',
         subtitle_languages: ['en'],
         vocabulary_words: ['twinkle', 'star', 'wonder', 'diamond', 'sky'],
+        lyrics: `Twinkle, twinkle, little star,
+How I wonder what you are!
+Up above the world so high,
+Like a diamond in the sky.
+Twinkle, twinkle, little star,
+How I wonder what you are!`,
       },
       {
         id: 'edu-4',
@@ -134,6 +158,15 @@ serve(async (req) => {
         audio_url: '/audio/mary-lamb.wav',
         subtitle_languages: ['en'],
         vocabulary_words: ['lamb', 'fleece', 'white', 'snow', 'follow'],
+        lyrics: `Mary had a little lamb,
+Little lamb, little lamb,
+Mary had a little lamb,
+Its fleece was white as snow.
+
+And everywhere that Mary went,
+Mary went, Mary went,
+Everywhere that Mary went,
+The lamb was sure to go.`,
       },
       {
         id: 'edu-5',
@@ -145,6 +178,17 @@ serve(async (req) => {
         audio_url: '/audio/old-macdonald.wav',
         subtitle_languages: ['en'],
         vocabulary_words: ['farm', 'animal', 'moo', 'oink', 'quack'],
+        lyrics: `Old MacDonald had a farm, E-I-E-I-O
+And on his farm he had a cow, E-I-E-I-O
+With a moo-moo here and a moo-moo there
+Here a moo, there a moo, everywhere a moo-moo
+Old MacDonald had a farm, E-I-E-I-O
+
+Old MacDonald had a farm, E-I-E-I-O
+And on his farm he had a pig, E-I-E-I-O
+With an oink-oink here and an oink-oink there
+Here an oink, there an oink, everywhere an oink-oink
+Old MacDonald had a farm, E-I-E-I-O`,
       },
       {
         id: 'edu-6',
@@ -156,6 +200,15 @@ serve(async (req) => {
         audio_url: '/audio/auld-lang-syne.wav',
         subtitle_languages: ['en'],
         vocabulary_words: ['auld', 'lang', 'syne', 'acquaintance', 'forgot'],
+        lyrics: `Should auld acquaintance be forgot,
+And never brought to mind?
+Should auld acquaintance be forgot,
+And auld lang syne!
+
+For auld lang syne, my dear,
+For auld lang syne,
+We'll tak a cup o' kindness yet,
+For auld lang syne.`,
       },
     ];
 
