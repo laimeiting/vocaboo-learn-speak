@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import InteractiveText from '@/components/InteractiveText';
 
 interface LyricsLine {
   id: string;
@@ -45,7 +46,20 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
   const [currentLineIndex, setCurrentLineIndex] = useState(-1);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [savedWords, setSavedWords] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+
+  const handleSaveWord = (word: string) => {
+    setSavedWords(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(word)) {
+        newSet.delete(word);
+      } else {
+        newSet.add(word);
+      }
+      return newSet;
+    });
+  };
 
   // Fetch audio from API
   useEffect(() => {
@@ -406,34 +420,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
 
             {showLyrics && (
               <div className="flex-1 overflow-y-auto">
-                {lyricsLines.length > 0 ? (
-                  // Synchronized lyrics
-                  <div className="space-y-2">
-                    {lyricsLines.map((line, index) => (
-                      <p
-                        key={line.id}
-                        className={`text-lg leading-relaxed transition-colors duration-300 ${
-                          index === currentLineIndex
-                            ? 'text-primary font-semibold bg-primary/10 px-2 py-1 rounded'
-                            : 'text-muted-foreground'
-                        }`}
-                      >
-                        {line.text}
-                      </p>
-                    ))}
-                  </div>
+                {song.lyrics ? (
+                  <InteractiveText
+                    content={song.lyrics}
+                    words={{}}
+                    savedWords={savedWords}
+                    onSaveWord={handleSaveWord}
+                  />
                 ) : (
-                  // Static lyrics
-                  <div className="space-y-2">
-                    {lyricsDisplayLines.map((line, index) => (
-                      <p key={index} className="text-lg leading-relaxed">
-                        {line}
-                      </p>
-                    ))}
-                  </div>
-                )}
-                
-                {!song.lyrics && lyricsLines.length === 0 && (
                   <div className="text-center py-8">
                     <p className="text-muted-foreground">No lyrics available for this song.</p>
                   </div>
