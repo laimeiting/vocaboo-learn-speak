@@ -17,14 +17,29 @@ import { toast as sonnerToast } from 'sonner';
 const Settings = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [language, setLanguage] = useState('en');
-  const [dailyGoal, setDailyGoal] = useState('10');
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    const saved = localStorage.getItem('soundEnabled');
+    return saved ? JSON.parse(saved) : true;
+  });
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+    const saved = localStorage.getItem('notificationsEnabled');
+    return saved ? JSON.parse(saved) : true;
+  });
+  const [translationLanguage, setTranslationLanguage] = useState(() => {
+    return localStorage.getItem('translationLanguage') || 'es';
+  });
+  const [dailyGoal, setDailyGoal] = useState(() => {
+    return localStorage.getItem('dailyGoal') || '10';
+  });
   const [name, setName] = useState('Alex');
   const [email, setEmail] = useState('alex@example.com');
 
   const handleSave = () => {
+    localStorage.setItem('soundEnabled', JSON.stringify(soundEnabled));
+    localStorage.setItem('notificationsEnabled', JSON.stringify(notificationsEnabled));
+    localStorage.setItem('translationLanguage', translationLanguage);
+    localStorage.setItem('dailyGoal', dailyGoal);
+    
     toast({
       title: "Settings Saved! 👻",
       description: "Your preferences have been updated successfully.",
@@ -122,18 +137,24 @@ const Settings = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="language">Learning Language</Label>
-              <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger id="language">
-                  <SelectValue placeholder="Select language" />
+              <Label htmlFor="translationLanguage">Native Language (for translations)</Label>
+              <Select value={translationLanguage} onValueChange={setTranslationLanguage}>
+                <SelectTrigger id="translationLanguage">
+                  <SelectValue placeholder="Select your language" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="es">Spanish</SelectItem>
-                  <SelectItem value="fr">French</SelectItem>
-                  <SelectItem value="de">German</SelectItem>
-                  <SelectItem value="ja">Japanese</SelectItem>
-                  <SelectItem value="zh">Chinese</SelectItem>
+                  <SelectItem value="es">Spanish (Español)</SelectItem>
+                  <SelectItem value="fr">French (Français)</SelectItem>
+                  <SelectItem value="de">German (Deutsch)</SelectItem>
+                  <SelectItem value="ja">Japanese (日本語)</SelectItem>
+                  <SelectItem value="zh">Chinese (中文)</SelectItem>
+                  <SelectItem value="pt">Portuguese (Português)</SelectItem>
+                  <SelectItem value="it">Italian (Italiano)</SelectItem>
+                  <SelectItem value="ru">Russian (Русский)</SelectItem>
+                  <SelectItem value="ko">Korean (한국어)</SelectItem>
+                  <SelectItem value="ar">Arabic (العربية)</SelectItem>
+                  <SelectItem value="hi">Hindi (हिन्दी)</SelectItem>
+                  <SelectItem value="nl">Dutch (Nederlands)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

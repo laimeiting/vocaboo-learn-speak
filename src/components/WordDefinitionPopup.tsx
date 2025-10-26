@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Volume2, BookOpen, X } from 'lucide-react';
+import { Heart, Volume2, BookOpen, X, Languages, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WordDefinitionPopupProps {
   word: string;
@@ -30,6 +31,37 @@ const WordDefinitionPopup = ({
   isLoading = false
 }: WordDefinitionPopupProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [translation, setTranslation] = useState<string>('');
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translationLanguage, setTranslationLanguage] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      const savedLang = localStorage.getItem('translationLanguage') || 'es';
+      setTranslationLanguage(savedLang);
+      fetchTranslation(word, savedLang);
+    } else {
+      setTranslation('');
+    }
+  }, [isOpen, word]);
+
+  const fetchTranslation = async (wordToTranslate: string, targetLang: string) => {
+    setIsTranslating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('translate-word', {
+        body: { word: wordToTranslate, targetLanguage: targetLang }
+      });
+
+      if (error) throw error;
+      if (data?.translation) {
+        setTranslation(data.translation);
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   const handlePlayAudio = () => {
     setIsPlaying(true);
@@ -96,6 +128,26 @@ const WordDefinitionPopup = ({
               <p className="text-muted-foreground leading-relaxed">{definition}</p>
             )}
           </div>
+
+          {/* Translation */}
+          {translationLanguage && (
+            <div>
+              <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                <Languages className="w-4 h-4" />
+                Translation
+              </h4>
+              {isTranslating ? (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Translating...</span>
+                </div>
+              ) : translation ? (
+                <div className="bg-gradient-subtle rounded-lg p-3 border border-primary/10">
+                  <p className="text-foreground font-medium">{translation}</p>
+                </div>
+              ) : null}
+            </div>
+          )}
 
           {/* Examples */}
           {!isLoading && examples.length > 0 && (
