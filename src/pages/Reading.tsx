@@ -32,6 +32,16 @@ interface Book {
   vocabulary_words: any;
 }
 
+interface Chapter {
+  id: string;
+  book_id: string;
+  chapter_number: number;
+  title: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const Reading = () => {
   const { toast } = useToast();
   const [books, setBooks] = useState<Book[]>([]);
@@ -52,7 +62,9 @@ const Reading = () => {
   const [isReading, setIsReading] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [ttsLoading, setTtsLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [currentChapter, setCurrentChapter] = useState(1);
+  const [loadingChapters, setLoadingChapters] = useState(false);
 
   useEffect(() => {
     fetchBooks();
@@ -123,16 +135,42 @@ const Reading = () => {
     }
   };
 
+  const fetchChapters = async (bookId: string) => {
+    try {
+      setLoadingChapters(true);
+      const { data, error } = await supabase
+        .from('chapters')
+        .select('*')
+        .eq('book_id', bookId)
+        .order('chapter_number');
+
+      if (error) throw error;
+      setChapters(data || []);
+      
+      // Load last read chapter from localStorage
+      const savedChapter = localStorage.getItem(`book_chapter_${bookId}`);
+      setCurrentChapter(savedChapter ? parseInt(savedChapter) : 1);
+    } catch (error) {
+      console.error('Error fetching chapters:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load chapters",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingChapters(false);
+    }
+  };
+
   const handleReadBook = (book: Book) => {
     setSelectedBook(book);
-    // Load last read page from localStorage
-    const savedPage = localStorage.getItem(`book_page_${book.id}`);
-    setCurrentPage(savedPage ? parseInt(savedPage) : 1);
+    fetchChapters(book.id);
   };
 
   const handleBackToList = () => {
     setSelectedBook(null);
-    setCurrentPage(1);
+    setChapters([]);
+    setCurrentChapter(1);
   };
 
   const handleWordClick = (word: string, definition: string) => {
@@ -317,7 +355,7 @@ const Reading = () => {
                     )}
                     <div className="flex items-center gap-1">
                       <BookMarked className="w-4 h-4" />
-                      <span>{Math.ceil(book.content.split(/\s+/).length / 400)} pages</span>
+                      <span>{book.page_count || 'N/A'} chapters</span>
                     </div>
                   </div>
 
@@ -337,7 +375,7 @@ const Reading = () => {
     );
   }
 
-  // Reading view - Pagination logic
+  // Reading view - Chapter logic
   const words = selectedBook.vocabulary_words || {};
   const savedWordsArray = Array.from(savedWords).map(word => ({
     word,
@@ -348,18 +386,14 @@ const Reading = () => {
     savedAt: new Date(),
   }));
 
-  // Split content into pages (~300-500 words)
-  const WORDS_PER_PAGE = 400;
-  const contentWords = selectedBook.content.split(/\s+/);
-  const totalPages = Math.ceil(contentWords.length / WORDS_PER_PAGE);
-  const startIndex = (currentPage - 1) * WORDS_PER_PAGE;
-  const endIndex = startIndex + WORDS_PER_PAGE;
-  const pageContent = contentWords.slice(startIndex, endIndex).join(' ');
+  const currentChapterData = chapters.find(ch => ch.chapter_number === currentChapter);
+  const chapterContent = currentChapterData?.content || '';
+  const totalChapters = chapters.length;
 
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-    // Save current page to localStorage
-    localStorage.setItem(`book_page_${selectedBook.id}`, newPage.toString());
+  const handleChapterChange = (newChapter: number) => {
+    setCurrentChapter(newChapter);
+    // Save current chapter to localStorage
+    localStorage.setItem(`book_chapter_${selectedBook.id}`, newChapter.toString());
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -414,6 +448,11 @@ const Reading = () => {
             {selectedBook.author && (
               <p className="text-lg text-muted-foreground">by {selectedBook.author}</p>
             )}
+            {currentChapterData && (
+              <p className="text-xl font-semibold text-primary">
+                Chapter {currentChapterData.chapter_number}: {currentChapterData.title}
+              </p>
+            )}
             <div className="flex gap-2">
               <Badge className={getDifficultyColor(selectedBook.difficulty_level)}>
                 {selectedBook.difficulty_level}
@@ -433,48 +472,64 @@ const Reading = () => {
           {mascotMessage && <VocabooMascot message={mascotMessage} />}
 
           {/* Interactive Text */}
-          <Card className="p-8">
-            <InteractiveText
-              content={pageContent}
-              words={words}
-              onSaveWord={handleSaveWord}
-              savedWords={savedWords}
-              style={{
-                fontSize: `${fontSize}px`,
-                lineHeight: lineHeight.toString()
-              }}
-            />
-          </Card>
+          {loadingChapters ? (
+            <Card className="p-8">
+              <Skeleton className="h-96 w-full" />
+            </Card>
+          ) : chapters.length === 0 ? (
+            <Card className="p-8 text-center">
+              <BookOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-xl font-semibold mb-2">No chapters available</h3>
+              <p className="text-muted-foreground">
+                This book doesn't have any chapters yet.
+              </p>
+            </Card>
+          ) : (
+            <Card className="p-8">
+              <InteractiveText
+                content={chapterContent}
+                words={words}
+                onSaveWord={handleSaveWord}
+                savedWords={savedWords}
+                style={{
+                  fontSize: `${fontSize}px`,
+                  lineHeight: lineHeight.toString()
+                }}
+              />
+            </Card>
+          )}
 
-          {/* Pagination */}
-          <div className="flex items-center justify-between mt-6">
-            <Button
-              variant="outline"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="gap-2"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Previous
-            </Button>
-            
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Page</span>
-              <span className="font-semibold text-foreground">{currentPage}</span>
-              <span>of</span>
-              <span className="font-semibold text-foreground">{totalPages}</span>
+          {/* Chapter Navigation */}
+          {chapters.length > 0 && (
+            <div className="flex items-center justify-between mt-6">
+              <Button
+                variant="outline"
+                onClick={() => handleChapterChange(currentChapter - 1)}
+                disabled={currentChapter === 1}
+                className="gap-2"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Previous Chapter
+              </Button>
+              
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Chapter</span>
+                <span className="font-semibold text-foreground">{currentChapter}</span>
+                <span>of</span>
+                <span className="font-semibold text-foreground">{totalChapters}</span>
+              </div>
+              
+              <Button
+                variant="outline"
+                onClick={() => handleChapterChange(currentChapter + 1)}
+                disabled={currentChapter === totalChapters}
+                className="gap-2"
+              >
+                Next Chapter
+                <ChevronRight className="w-4 h-4" />
+              </Button>
             </div>
-            
-            <Button
-              variant="outline"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="gap-2"
-            >
-              Next
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
+          )}
 
           {/* Saved Words Dialog */}
           <Dialog open={showSavedWords} onOpenChange={setShowSavedWords}>
