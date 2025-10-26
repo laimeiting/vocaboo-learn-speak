@@ -112,35 +112,55 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     fetchAudio();
   }, [song.id, song.audio_url, isOpen, song.title, song.artist, toast]);
 
-  // Fetch synchronized lyrics (only for database songs with UUID)
+  // Fetch synchronized lyrics or generate fallback timestamps
   useEffect(() => {
     const fetchLyricsLines = async () => {
       // Only fetch lyrics if song ID is a valid UUID (from database)
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(song.id);
-      if (!isUUID) {
-        console.log('Skipping lyrics fetch for non-database song:', song.id);
-        setLyricsLines([]);
-        return;
+      
+      if (isUUID) {
+        try {
+          const { data, error } = await supabase
+            .from('lyrics_lines')
+            .select('*')
+            .eq('song_id', song.id)
+            .order('line_number');
+
+          if (error) throw error;
+          
+          if (data && data.length > 0) {
+            setLyricsLines(data);
+            return;
+          }
+        } catch (error) {
+          console.error('Error fetching lyrics lines:', error);
+        }
       }
       
-      try {
-        const { data, error } = await supabase
-          .from('lyrics_lines')
-          .select('*')
-          .eq('song_id', song.id)
-          .order('line_number');
-
-        if (error) throw error;
-        setLyricsLines(data || []);
-      } catch (error) {
-        console.error('Error fetching lyrics lines:', error);
+      // Generate fallback timestamps for songs with plain text lyrics
+      if (song.lyrics && duration > 0) {
+        const lines = song.lyrics.split('\n').filter(line => line.trim());
+        const timePerLine = duration / lines.length;
+        
+        const syntheticLines: LyricsLine[] = lines.map((text, index) => ({
+          id: `synthetic-${index}`,
+          line_number: index,
+          start_time_seconds: index * timePerLine,
+          end_time_seconds: (index + 1) * timePerLine,
+          text: text.trim()
+        }));
+        
+        console.log('Generated synthetic lyrics lines:', syntheticLines.length);
+        setLyricsLines(syntheticLines);
+      } else {
+        setLyricsLines([]);
       }
     };
 
     if (song.id && isOpen) {
       fetchLyricsLines();
     }
-  }, [song.id, isOpen]);
+  }, [song.id, song.lyrics, isOpen, duration]);
 
   // Update current lyrics line based on time
   useEffect(() => {
@@ -307,9 +327,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  // Split lyrics into lines for display
-  const lyricsDisplayLines = song.lyrics ? song.lyrics.split('\n').filter(line => line.trim()) : [];
-
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
       <DialogContent className="max-w-4xl w-full h-[80vh] p-0 bg-background">
@@ -434,8 +451,26 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
             </div>
 
             {showLyrics && (
-              <div className="flex-1 overflow-y-auto">
-                {song.lyrics ? (
+              <div className="flex-1 overflow-y-auto space-y-2">
+                {lyricsLines.length > 0 ? (
+                  lyricsLines.map((line, index) => (
+                    <div
+                      key={line.id}
+                      className={`p-2 rounded transition-all duration-300 ${
+                        index === currentLineIndex
+                          ? 'bg-primary/20 font-semibold scale-105'
+                          : 'opacity-60'
+                      }`}
+                    >
+                      <InteractiveText
+                        content={line.text}
+                        words={{}}
+                        savedWords={savedWords}
+                        onSaveWord={handleSaveWord}
+                      />
+                    </div>
+                  ))
+                ) : song.lyrics ? (
                   <InteractiveText
                     content={song.lyrics}
                     words={{}}
