@@ -51,40 +51,67 @@ serve(async (req) => {
       );
     }
 
-    // Use OpenAI to split content into chapters
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Use Lovable AI to split content into chapters
+    console.log('Generating chapters using Lovable AI...');
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${Deno.env.get('LOVABLE_API_KEY')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that splits book content into logical chapters. Return a JSON array of chapters, where each chapter has "title" and "content" fields. Aim for 5-10 chapters of roughly equal length.'
+            content: 'You are a helpful assistant that splits book content into logical chapters. Return structured data with chapters array. Each chapter must have "title" and "content" fields. Aim for 5-10 chapters of roughly equal length.'
           },
           {
             role: 'user',
             content: `Split this book into chapters:\n\nTitle: ${book.title}\n\nContent:\n${book.content}`
           }
         ],
-        response_format: { type: "json_object" },
-        temperature: 0.3,
+        tools: [{
+          type: "function",
+          function: {
+            name: "create_chapters",
+            description: "Create chapters from book content",
+            parameters: {
+              type: "object",
+              properties: {
+                chapters: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      title: { type: "string" },
+                      content: { type: "string" }
+                    },
+                    required: ["title", "content"],
+                    additionalProperties: false
+                  }
+                }
+              },
+              required: ["chapters"],
+              additionalProperties: false
+            }
+          }
+        }],
+        tool_choice: { type: "function", function: { name: "create_chapters" } }
       }),
     });
 
-    if (!openAIResponse.ok) {
-      const error = await openAIResponse.text();
-      console.error('OpenAI API error:', error);
+    if (!aiResponse.ok) {
+      const error = await aiResponse.text();
+      console.error('Lovable AI error:', error);
       throw new Error('Failed to generate chapters');
     }
 
-    const aiResult = await openAIResponse.json();
+    const aiResult = await aiResponse.json();
     console.log('AI response received');
     
-    const chaptersData = JSON.parse(aiResult.choices[0].message.content);
+    const toolCall = aiResult.choices[0].message.tool_calls?.[0];
+    const chaptersData = JSON.parse(toolCall.function.arguments);
     const chapters = chaptersData.chapters || [];
 
     // Insert chapters into database
