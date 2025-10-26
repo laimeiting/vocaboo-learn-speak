@@ -145,7 +145,37 @@ const Reading = () => {
         .order('chapter_number');
 
       if (error) throw error;
-      setChapters(data || []);
+      
+      // If no chapters exist, generate them
+      if (!data || data.length === 0) {
+        toast({
+          title: "Generating chapters",
+          description: "Please wait while we create chapters for this book...",
+        });
+
+        const { data: generatedData, error: generateError } = await supabase.functions.invoke('generate-chapters', {
+          body: { bookId }
+        });
+
+        if (generateError) throw generateError;
+
+        // Fetch the newly generated chapters
+        const { data: newChapters, error: fetchError } = await supabase
+          .from('chapters')
+          .select('*')
+          .eq('book_id', bookId)
+          .order('chapter_number');
+
+        if (fetchError) throw fetchError;
+        setChapters(newChapters || []);
+        
+        toast({
+          title: "Chapters ready!",
+          description: generatedData.message || "Chapters have been generated successfully",
+        });
+      } else {
+        setChapters(data);
+      }
       
       // Load last read chapter from localStorage
       const savedChapter = localStorage.getItem(`book_chapter_${bookId}`);
