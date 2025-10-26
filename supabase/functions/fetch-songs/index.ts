@@ -89,10 +89,10 @@ serve(async (req) => {
       }
     }
 
-    // Also add some curated educational songs for learning
+    // Also add some curated educational songs for learning (using database UUIDs)
     const educationalSongs: Song[] = [
       {
-        id: 'edu-1',
+        id: '00000000-0000-0000-0000-000000000001',
         title: 'Amazing Grace',
         artist: 'Traditional',
         genre: ['Folk', 'Traditional'],
@@ -116,7 +116,7 @@ I have already come;
 And grace will lead me home.`,
       },
       {
-        id: 'edu-2',
+        id: '00000000-0000-0000-0000-000000000002',
         title: 'Happy Birthday',
         artist: 'Traditional',
         genre: ['Traditional'],
@@ -130,7 +130,7 @@ Happy birthday, dear friend
 Happy birthday to you`,
       },
       {
-        id: 'edu-3',
+        id: '00000000-0000-0000-0000-000000000003',
         title: 'Twinkle Twinkle Little Star',
         artist: 'Traditional',
         genre: ['Children', 'Traditional'],
@@ -146,7 +146,7 @@ Twinkle, twinkle, little star,
 How I wonder what you are!`,
       },
       {
-        id: 'edu-4',
+        id: '00000000-0000-0000-0000-000000000004',
         title: 'Mary Had a Little Lamb',
         artist: 'Traditional',
         genre: ['Children', 'Traditional'],
@@ -165,7 +165,7 @@ Everywhere that Mary went,
 The lamb was sure to go.`,
       },
       {
-        id: 'edu-5',
+        id: '00000000-0000-0000-0000-000000000005',
         title: 'Old MacDonald Had a Farm',
         artist: 'Traditional',
         genre: ['Children', 'Traditional'],
@@ -186,7 +186,7 @@ Here an oink, there an oink, everywhere an oink-oink
 Old MacDonald had a farm, E-I-E-I-O`,
       },
       {
-        id: 'edu-6',
+        id: '00000000-0000-0000-0000-000000000006',
         title: 'Auld Lang Syne',
         artist: 'Traditional',
         genre: ['Folk', 'Traditional'],
