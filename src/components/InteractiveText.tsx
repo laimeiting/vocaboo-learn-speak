@@ -89,9 +89,11 @@ const InteractiveText = ({
     if (!translations[cleanWord] && !loadingTranslations.has(cleanWord)) {
       setLoadingTranslations(prev => new Set([...prev, cleanWord]));
       
+      const targetLanguage = localStorage.getItem('translationLanguage') || 'es';
+      
       try {
         const { data, error } = await supabase.functions.invoke('translate-word', {
-          body: { word: cleanWord, targetLanguage: 'es' }
+          body: { word: cleanWord, targetLanguage }
         });
         
         if (error) throw error;

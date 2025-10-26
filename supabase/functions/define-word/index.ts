@@ -69,7 +69,10 @@ Return ONLY valid JSON, no other text.`
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content?.trim() || "";
+    let content = data.choices?.[0]?.message?.content?.trim() || "";
+    
+    // Strip markdown code blocks if present
+    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     
     // Parse the JSON response
     const wordData = JSON.parse(content);
