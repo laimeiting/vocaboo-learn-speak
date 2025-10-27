@@ -358,7 +358,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    audio.currentTime = Math.max(0, Math.min(duration, currentTime + seconds));
+    const newTime = Math.max(0, Math.min(duration, currentTime + seconds));
+    audio.currentTime = newTime;
+    setCurrentTime(newTime);
   };
 
   const formatTime = (time: number) => {
