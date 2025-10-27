@@ -360,7 +360,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
 
     const newTime = Math.max(0, Math.min(duration, currentTime + seconds));
     audio.currentTime = newTime;
-    setCurrentTime(newTime);
+    
+    // Force immediate UI update regardless of play state
+    requestAnimationFrame(() => {
+      setCurrentTime(audio.currentTime);
+    });
   };
 
   const formatTime = (time: number) => {
