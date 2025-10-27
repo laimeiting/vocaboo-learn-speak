@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, X, SkipBack, SkipForward, Subtitles } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, X, SkipBack, SkipForward, Subtitles, Languages, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -50,9 +50,20 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
   const { toast } = useToast();
   // Track lyrics in local state to trigger renders when fetched
   const [lyricsText, setLyricsText] = useState<string | null>(song.lyrics ?? null);
+  const [translatedLyrics, setTranslatedLyrics] = useState<string | null>(null);
+  const [explanation, setExplanation] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [isExplaining, setIsExplaining] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
+  
   // Reset lyrics when song changes
   useEffect(() => {
     setLyricsText(song.lyrics ?? null);
+    setTranslatedLyrics(null);
+    setExplanation(null);
+    setShowTranslation(false);
+    setShowExplanation(false);
   }, [song.id]);
 
   const handleSaveWord = (word: string) => {
@@ -382,6 +393,88 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     onClose();
   };
 
+  const handleTranslate = async () => {
+    if (!lyricsText) {
+      toast({
+        title: "No lyrics",
+        description: "No lyrics available to translate.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (showTranslation && translatedLyrics) {
+      setShowTranslation(false);
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('translate-lyrics', {
+        body: { lyrics: lyricsText, targetLanguage: selectedLanguage }
+      });
+
+      if (error) throw error;
+
+      if (data?.translatedLyrics) {
+        setTranslatedLyrics(data.translatedLyrics);
+        setShowTranslation(true);
+        toast({
+          title: "Translation complete",
+          description: `Lyrics translated to ${selectedLanguage.toUpperCase()}`,
+        });
+      }
+    } catch (error) {
+      console.error('Error translating lyrics:', error);
+      toast({
+        title: "Translation failed",
+        description: "Could not translate lyrics. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  const handleExplain = async () => {
+    if (!lyricsText) {
+      toast({
+        title: "No lyrics",
+        description: "No lyrics available to explain.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (showExplanation && explanation) {
+      setShowExplanation(false);
+      return;
+    }
+
+    setIsExplaining(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('explain-lyrics', {
+        body: { lyrics: lyricsText }
+      });
+
+      if (error) throw error;
+
+      if (data?.explanation) {
+        setExplanation(data.explanation);
+        setShowExplanation(true);
+      }
+    } catch (error) {
+      console.error('Error explaining lyrics:', error);
+      toast({
+        title: "Explanation failed",
+        description: "Could not generate explanation. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExplaining(false);
+    }
+  };
+
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
@@ -504,39 +597,81 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
                     ))}
                   </SelectContent>
                 </Select>
+                <Button
+                  variant={showTranslation ? "default" : "ghost"}
+                  size="sm"
+                  onClick={handleTranslate}
+                  disabled={isTranslating || !lyricsText}
+                  title="Translate lyrics"
+                >
+                  <Languages className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={showExplanation ? "default" : "ghost"}
+                  size="sm"
+                  onClick={handleExplain}
+                  disabled={isExplaining || !lyricsText}
+                  title="Explain lyrics"
+                >
+                  <Info className="w-4 h-4" />
+                </Button>
               </div>
             </div>
 
             {showLyrics && (
-              <div className="flex-1 overflow-y-auto space-y-2">
-                {lyricsLines.length > 0 ? (
-                  lyricsLines.map((line, index) => (
-                    <div
-                      key={line.id}
-                      className={`p-2 rounded transition-all duration-300 ${
-                        index === currentLineIndex
-                          ? 'bg-primary/20 font-semibold scale-105'
-                          : 'opacity-60'
-                      }`}
-                    >
+              <div className="flex-1 overflow-y-auto space-y-4">
+                {showExplanation && explanation && (
+                  <div className="bg-accent/50 p-4 rounded-lg mb-4">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <Info className="w-4 h-4" />
+                      Explanation
+                    </h4>
+                    <p className="text-sm whitespace-pre-wrap">{explanation}</p>
+                  </div>
+                )}
+
+                {showTranslation && translatedLyrics && (
+                  <div className="mb-4">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <Languages className="w-4 h-4" />
+                      Translation ({selectedLanguage.toUpperCase()})
+                    </h4>
+                    <div className="whitespace-pre-wrap text-sm">{translatedLyrics}</div>
+                  </div>
+                )}
+
+                {!showTranslation && (
+                  <div className="space-y-2">
+                    {lyricsLines.length > 0 ? (
+                      lyricsLines.map((line, index) => (
+                        <div
+                          key={line.id}
+                          className={`p-2 rounded transition-all duration-300 ${
+                            index === currentLineIndex
+                              ? 'bg-primary/20 font-semibold scale-105'
+                              : 'opacity-60'
+                          }`}
+                        >
+                          <InteractiveText
+                            content={line.text}
+                            words={{}}
+                            savedWords={savedWords}
+                            onSaveWord={handleSaveWord}
+                          />
+                        </div>
+                      ))
+                    ) : lyricsText ? (
                       <InteractiveText
-                        content={line.text}
+                        content={lyricsText}
                         words={{}}
                         savedWords={savedWords}
                         onSaveWord={handleSaveWord}
                       />
-                    </div>
-                  ))
-                ) : lyricsText ? (
-                  <InteractiveText
-                    content={lyricsText}
-                    words={{}}
-                    savedWords={savedWords}
-                    onSaveWord={handleSaveWord}
-                  />
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No lyrics available for this song.</p>
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">No lyrics available for this song.</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -67,7 +67,52 @@ serve(async (req) => {
       }
     }
 
+    // Fallback to AI generation if no lyrics found
     if (!lyrics) {
+      console.log('Lyrics not found from APIs, trying AI generation...');
+      try {
+        const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+        if (LOVABLE_API_KEY) {
+          const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash',
+              messages: [
+                {
+                  role: 'system',
+                  content: 'You are a helpful assistant that generates song lyrics. Generate lyrics that match the style and theme of the requested song. Keep it appropriate for language learners.'
+                },
+                {
+                  role: 'user',
+                  content: `Generate lyrics for the song "${title}" by ${artist}. If you know this song, provide the actual lyrics. If not, create original lyrics inspired by the song title and artist style.`
+                }
+              ],
+            }),
+          });
+
+          if (aiResponse.ok) {
+            const aiData = await aiResponse.json();
+            lyrics = aiData.choices?.[0]?.message?.content;
+            if (lyrics) {
+              console.log('AI generated lyrics successfully');
+              return new Response(
+                JSON.stringify({ lyrics, ai_generated: true }),
+                {
+                  headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                  status: 200,
+                }
+              );
+            }
+          }
+        }
+      } catch (aiError) {
+        console.error('AI generation failed:', aiError);
+      }
+
       console.log('Lyrics not found for this song');
       return new Response(
         JSON.stringify({ lyrics: null, error: 'Lyrics not found' }),

@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.fetch-lyrics]
 verify_jwt = false
+
+[functions.translate-lyrics]
+verify_jwt = false
+
+[functions.explain-lyrics]
+verify_jwt = false
