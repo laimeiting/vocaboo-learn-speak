@@ -252,6 +252,27 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     };
   }, [toast]);
 
+  // RAF ticker to keep currentTime in sync for smoother and reliable progress updates
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    let rafId: number | null = null;
+    const tick = () => {
+      setCurrentTime(audio.currentTime || 0);
+      rafId = requestAnimationFrame(tick);
+    };
+
+    if (isPlaying) {
+      rafId = requestAnimationFrame(tick);
+    }
+
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
+  }, [isPlaying]);
+
+
   const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio) return;
