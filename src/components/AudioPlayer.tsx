@@ -48,6 +48,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [savedWords, setSavedWords] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+  // Track lyrics in local state to trigger renders when fetched
+  const [lyricsText, setLyricsText] = useState<string | null>(song.lyrics ?? null);
+  // Reset lyrics when song changes
+  useEffect(() => {
+    setLyricsText(song.lyrics ?? null);
+  }, [song.id]);
 
   const handleSaveWord = (word: string) => {
     setSavedWords(prev => {
@@ -108,7 +114,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
       }
       
       // Fetch lyrics if not present
-      if (!song.lyrics) {
+      if (!lyricsText) {
         try {
           console.log('Fetching lyrics for:', song.title, '-', song.artist);
           const { data, error } = await supabase.functions.invoke('fetch-lyrics', {
@@ -119,10 +125,13 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
           
           if (data?.lyrics) {
             console.log('Lyrics fetched successfully');
-            // Update the song object with fetched lyrics
-            song.lyrics = data.lyrics;
+            setLyricsText(data.lyrics);
           } else {
             console.log('No lyrics found for this song');
+            toast({
+              title: 'No lyrics found',
+              description: 'We could not find lyrics for this track.',
+            });
           }
         } catch (error) {
           console.error('Error fetching lyrics:', error);
@@ -159,9 +168,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
       }
       
       // Generate fallback timestamps for songs with plain text lyrics
-      if (song.lyrics && duration > 0) {
-        const lines = song.lyrics.split('\n').filter(line => line.trim());
-        const timePerLine = duration / lines.length;
+      if (lyricsText && duration > 0) {
+        const lines = lyricsText.split('\n').filter(line => line.trim());
+        const timePerLine = lines.length > 0 ? duration / lines.length : 0;
         
         const syntheticLines: LyricsLine[] = lines.map((text, index) => ({
           id: `synthetic-${index}`,
@@ -181,7 +190,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     if (song.id && isOpen) {
       fetchLyricsLines();
     }
-  }, [song.id, song.lyrics, isOpen, duration]);
+  }, [song.id, lyricsText, isOpen, duration]);
 
   // Update current lyrics line based on time
   useEffect(() => {
@@ -491,9 +500,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
                       />
                     </div>
                   ))
-                ) : song.lyrics ? (
+                ) : lyricsText ? (
                   <InteractiveText
-                    content={song.lyrics}
+                    content={lyricsText}
                     words={{}}
                     savedWords={savedWords}
                     onSaveWord={handleSaveWord}

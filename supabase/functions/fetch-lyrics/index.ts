@@ -21,32 +21,66 @@ serve(async (req) => {
     }
 
     // Use lyrics.ovh free API (no authentication required)
+    // Try lyrics.ovh first
     const lyricsUrl = `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`;
-    
-    console.log('Fetching from lyrics API:', lyricsUrl);
-    
-    const response = await fetch(lyricsUrl);
-    
-    if (!response.ok) {
+    console.log('Fetching from lyrics.ovh API:', lyricsUrl);
+
+    let lyrics: string | null = null;
+
+    try {
+      const response = await fetch(lyricsUrl);
+      if (response.ok) {
+        const data = await response.json();
+        if (data?.lyrics && typeof data.lyrics === 'string' && data.lyrics.trim()) {
+          lyrics = data.lyrics;
+        } else {
+          console.log('lyrics.ovh returned no lyrics');
+        }
+      } else {
+        console.log('lyrics.ovh request not ok');
+      }
+    } catch (e) {
+      console.log('lyrics.ovh request failed:', e);
+    }
+
+    // Fallback to Lyrist API if needed
+    if (!lyrics) {
+      const lyristUrl = `https://lyrist.vercel.app/api/${encodeURIComponent(title)}/${encodeURIComponent(artist)}`;
+      console.log('Falling back to Lyrist API:', lyristUrl);
+      try {
+        const res2 = await fetch(lyristUrl);
+        if (res2.ok) {
+          const data2 = await res2.json();
+          if (data2?.lyrics && typeof data2.lyrics === 'string' && data2.lyrics.trim()) {
+            lyrics = data2.lyrics;
+          } else {
+            console.log('Lyrist returned no lyrics');
+          }
+        } else {
+          console.log('Lyrist request not ok');
+        }
+      } catch (e2) {
+        console.log('Lyrist request failed:', e2);
+      }
+    }
+
+    if (!lyrics) {
       console.log('Lyrics not found for this song');
       return new Response(
         JSON.stringify({ lyrics: null, error: 'Lyrics not found' }),
-        { 
+        {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200 
+          status: 200,
         }
       );
     }
 
-    const data = await response.json();
-    
     console.log('Lyrics fetched successfully');
-
     return new Response(
-      JSON.stringify({ lyrics: data.lyrics }),
-      { 
+      JSON.stringify({ lyrics }),
+      {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
+        status: 200,
       }
     );
   } catch (error) {
