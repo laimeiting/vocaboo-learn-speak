@@ -29,18 +29,21 @@ serve(async (req) => {
 
     try {
       const response = await fetch(lyricsUrl);
+      console.log('lyrics.ovh response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('lyrics.ovh response data:', data ? 'has data' : 'no data');
         if (data?.lyrics && typeof data.lyrics === 'string' && data.lyrics.trim()) {
           lyrics = data.lyrics;
+          console.log('Successfully got lyrics from lyrics.ovh, length:', lyrics.length);
         } else {
-          console.log('lyrics.ovh returned no lyrics');
+          console.log('lyrics.ovh returned empty or invalid lyrics');
         }
       } else {
-        console.log('lyrics.ovh request not ok');
+        console.log('lyrics.ovh request failed with status:', response.status);
       }
     } catch (e) {
-      console.log('lyrics.ovh request failed:', e);
+      console.error('lyrics.ovh request error:', e);
     }
 
     // Fallback to Lyrist API if needed
