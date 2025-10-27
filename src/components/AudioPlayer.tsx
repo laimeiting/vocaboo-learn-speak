@@ -427,7 +427,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
               />
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{formatTime(currentTime)}</span>
-                <span>{formatTime(duration)}</span>
+                <span>{duration > 0 ? formatTime(duration) : "--:--"}</span>
               </div>
             </div>
 
