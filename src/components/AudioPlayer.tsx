@@ -61,55 +61,76 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     });
   };
 
-  // Fetch audio from API or use existing URL
+  // Fetch audio and lyrics from API or use existing
   useEffect(() => {
-    const fetchAudio = async () => {
+    const fetchAudioAndLyrics = async () => {
       if (!isOpen) return;
       
       // If song already has an audio URL, use it directly
       if (song.audio_url) {
         console.log('Using existing audio URL:', song.audio_url);
         setAudioUrl(song.audio_url);
-        return;
-      }
-      
-      setIsLoadingAudio(true);
-      try {
-        const { data, error } = await supabase.functions.invoke('fetch-song-audio', {
-          body: { title: song.title, artist: song.artist }
-        });
+      } else {
+        setIsLoadingAudio(true);
+        try {
+          const { data, error } = await supabase.functions.invoke('fetch-song-audio', {
+            body: { title: song.title, artist: song.artist }
+          });
 
-        if (error) throw error;
+          if (error) throw error;
 
-        if (data?.audio_url) {
-          console.log('Fetched audio URL:', data.audio_url);
-          setAudioUrl(data.audio_url);
-          if (data.matched === false) {
+          if (data?.audio_url) {
+            console.log('Fetched audio URL:', data.audio_url);
+            setAudioUrl(data.audio_url);
+            if (data.matched === false) {
+              toast({
+                title: "Found a similar track",
+                description: `${data.title} — ${data.artist}`,
+              });
+            }
+          } else {
             toast({
-              title: "Found a similar track",
-              description: `${data.title} — ${data.artist}`,
+              title: "Audio Not Found",
+              description: "Could not find audio for this song.",
+              variant: "destructive",
             });
           }
-        } else {
+        } catch (error) {
+          console.error('Error fetching audio:', error);
           toast({
-            title: "Audio Not Found",
-            description: "Could not find audio for this song.",
+            title: "Error",
+            description: "Failed to load audio from API.",
             variant: "destructive",
           });
+        } finally {
+          setIsLoadingAudio(false);
         }
-      } catch (error) {
-        console.error('Error fetching audio:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load audio from API.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoadingAudio(false);
+      }
+      
+      // Fetch lyrics if not present
+      if (!song.lyrics) {
+        try {
+          console.log('Fetching lyrics for:', song.title, '-', song.artist);
+          const { data, error } = await supabase.functions.invoke('fetch-lyrics', {
+            body: { artist: song.artist, title: song.title }
+          });
+
+          if (error) throw error;
+          
+          if (data?.lyrics) {
+            console.log('Lyrics fetched successfully');
+            // Update the song object with fetched lyrics
+            song.lyrics = data.lyrics;
+          } else {
+            console.log('No lyrics found for this song');
+          }
+        } catch (error) {
+          console.error('Error fetching lyrics:', error);
+        }
       }
     };
 
-    fetchAudio();
+    fetchAudioAndLyrics();
   }, [song.id, song.audio_url, isOpen, song.title, song.artist, toast]);
 
   // Fetch synchronized lyrics or generate fallback timestamps
