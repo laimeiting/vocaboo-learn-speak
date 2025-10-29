@@ -56,6 +56,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
   const [isExplaining, setIsExplaining] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  // Track the actual song being played (may differ from original song)
+  const [actualSong, setActualSong] = useState({ title: song.title, artist: song.artist });
   
   // Reset lyrics when song changes
   useEffect(() => {
@@ -64,6 +66,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     setExplanation(null);
     setShowTranslation(false);
     setShowExplanation(false);
+    setActualSong({ title: song.title, artist: song.artist });
   }, [song.id]);
 
   const handleSaveWord = (word: string) => {
@@ -100,10 +103,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
             console.log('Fetched audio URL:', data.audio_url);
             setAudioUrl(data.audio_url);
             if (data.matched === false) {
+              // Update the actual song being played
+              setActualSong({ title: data.title, artist: data.artist });
               toast({
                 title: "Found a similar track",
                 description: `${data.title} — ${data.artist}`,
               });
+            } else {
+              setActualSong({ title: song.title, artist: song.artist });
             }
           } else {
             toast({
@@ -124,12 +131,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
         }
       }
       
-      // Fetch lyrics if not present
+      // Fetch lyrics if not present - use actualSong data
       if (!lyricsText) {
         try {
-          console.log('Fetching lyrics for:', song.title, '-', song.artist);
+          console.log('Fetching lyrics for:', actualSong.title, '-', actualSong.artist);
           const { data, error } = await supabase.functions.invoke('fetch-lyrics', {
-            body: { artist: song.artist, title: song.title }
+            body: { artist: actualSong.artist, title: actualSong.title }
           });
 
           if (error) throw error;
@@ -151,7 +158,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ song, isOpen, onClose }) => {
     };
 
     fetchAudioAndLyrics();
-  }, [song.id, song.audio_url, isOpen, song.title, song.artist, toast]);
+  }, [song.id, song.audio_url, isOpen, song.title, song.artist, toast, actualSong.title, actualSong.artist]);
 
   // Fetch synchronized lyrics or generate fallback timestamps
   useEffect(() => {
