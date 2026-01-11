@@ -38,7 +38,8 @@ const App = () => (
               <Route path="/daily-challenge" element={<DailyChallenge />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/settings" element={<Settings />} />
-              <Route path="/auth" element={<Auth />} />
+              {/* Auth page hidden for now */}
+              {/* <Route path="/auth" element={<Auth />} /> */}
               <Route path="/install" element={<Install />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
