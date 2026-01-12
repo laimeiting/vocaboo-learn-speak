@@ -243,10 +243,14 @@ serve(async (req) => {
       allShows = allShows.filter(show => show.difficulty_level === filters.difficulty);
     }
 
-    // Fetch YouTube videos for each show
+    // Fetch YouTube videos only for shows that don't already have a video_url
     console.log(`Fetching YouTube videos for ${allShows.length} shows...`);
     const showsWithVideos = await Promise.all(
       allShows.map(async (show: any) => {
+        // Skip if show already has a video_url (like vlogs)
+        if (show.video_url) {
+          return show;
+        }
         const videoUrl = await fetchYouTubeVideoForShow(show.title, show.type, YOUTUBE_API_KEY);
         return {
           ...show,
